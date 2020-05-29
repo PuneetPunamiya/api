@@ -13,7 +13,7 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// The resource service provides all resources
+// The resource service provides all resources information
 type Service interface {
 	// Get all Resources
 	All(context.Context) (res []*Resource, err error)
@@ -37,17 +37,17 @@ type Resource struct {
 	// Type of catalog where resource belongs
 	Catalog *Catalog
 	// Type of resource
-	Type *string
+	Type string
 	// Description of resource
-	Description *string
+	Description string
 	// Latest version o resource
-	LatestVersion *string
-	// Rating of resource
-	Rating *uint
-	// Date when resource was last updated
-	LastUpdatedAt *string
-	// Tags associated with the category
+	LatestVersion string
+	// Tags related to resources
 	Tags []*Tag
+	// Rating of resource
+	Rating uint
+	// Date when resource was last updated
+	LastUpdatedAt string
 }
 
 type Catalog struct {

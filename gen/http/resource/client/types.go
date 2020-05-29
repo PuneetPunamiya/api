@@ -48,12 +48,12 @@ type ResourceResponse struct {
 	Description *string `form:"description,omitempty" json:"description,omitempty" xml:"description,omitempty"`
 	// Latest version o resource
 	LatestVersion *string `form:"latest_version,omitempty" json:"latest_version,omitempty" xml:"latest_version,omitempty"`
+	// Tags related to resources
+	Tags []*Tag `form:"tags,omitempty" json:"tags,omitempty" xml:"tags,omitempty"`
 	// Rating of resource
 	Rating *uint `form:"rating,omitempty" json:"rating,omitempty" xml:"rating,omitempty"`
 	// Date when resource was last updated
 	LastUpdatedAt *string `form:"last_updated_at,omitempty" json:"last_updated_at,omitempty" xml:"last_updated_at,omitempty"`
-	// Tags associated with the category
-	Tags []*Tag `form:"tags,omitempty" json:"tags,omitempty" xml:"tags,omitempty"`
 }
 
 // CatalogResponse is used to define fields on response body types.
@@ -128,6 +128,27 @@ func ValidateResourceResponse(body *ResourceResponse) (err error) {
 	}
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.Catalog == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("catalog", "body"))
+	}
+	if body.Type == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("type", "body"))
+	}
+	if body.Description == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("description", "body"))
+	}
+	if body.LatestVersion == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("latest_version", "body"))
+	}
+	if body.Rating == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("rating", "body"))
+	}
+	if body.LastUpdatedAt == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("last_updated_at", "body"))
+	}
+	if body.Tags == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("tags", "body"))
 	}
 	if body.Catalog != nil {
 		if err2 := ValidateCatalogResponse(body.Catalog); err2 != nil {

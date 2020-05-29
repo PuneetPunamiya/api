@@ -9,5 +9,5 @@ package client
 
 // AllResourcePath returns the URL path to the resource service All HTTP endpoint.
 func AllResourcePath() string {
-	return "/resource"
+	return "/resources"
 }

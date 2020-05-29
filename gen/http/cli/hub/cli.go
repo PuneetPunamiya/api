@@ -127,7 +127,7 @@ func ParseEndpoint(
 
 // resourceUsage displays the usage of the resource command and its subcommands.
 func resourceUsage() {
-	fmt.Fprintf(os.Stderr, `The resource service provides all resources
+	fmt.Fprintf(os.Stderr, `The resource service provides all resources information
 Usage:
     %s [globalflags] resource COMMAND [flags]
 

@@ -103,20 +103,16 @@ func unmarshalResourceResponseToResourceResource(v *ResourceResponse) *resource.
 	res := &resource.Resource{
 		ID:            *v.ID,
 		Name:          *v.Name,
-		Type:          v.Type,
-		Description:   v.Description,
-		LatestVersion: v.LatestVersion,
-		Rating:        v.Rating,
-		LastUpdatedAt: v.LastUpdatedAt,
+		Type:          *v.Type,
+		Description:   *v.Description,
+		LatestVersion: *v.LatestVersion,
+		Rating:        *v.Rating,
+		LastUpdatedAt: *v.LastUpdatedAt,
 	}
-	if v.Catalog != nil {
-		res.Catalog = unmarshalCatalogResponseToResourceCatalog(v.Catalog)
-	}
-	if v.Tags != nil {
-		res.Tags = make([]*resource.Tag, len(v.Tags))
-		for i, val := range v.Tags {
-			res.Tags[i] = unmarshalTagToResourceTag(val)
-		}
+	res.Catalog = unmarshalCatalogResponseToResourceCatalog(v.Catalog)
+	res.Tags = make([]*resource.Tag, len(v.Tags))
+	for i, val := range v.Tags {
+		res.Tags[i] = unmarshalTagToResourceTag(val)
 	}
 
 	return res
@@ -125,9 +121,6 @@ func unmarshalResourceResponseToResourceResource(v *ResourceResponse) *resource.
 // unmarshalCatalogResponseToResourceCatalog builds a value of type
 // *resource.Catalog from a value of type *CatalogResponse.
 func unmarshalCatalogResponseToResourceCatalog(v *CatalogResponse) *resource.Catalog {
-	if v == nil {
-		return nil
-	}
 	res := &resource.Catalog{
 		ID:   *v.ID,
 		Type: *v.Type,
@@ -139,9 +132,6 @@ func unmarshalCatalogResponseToResourceCatalog(v *CatalogResponse) *resource.Cat
 // unmarshalTagToResourceTag builds a value of type *resource.Tag from a value
 // of type *Tag.
 func unmarshalTagToResourceTag(v *Tag) *resource.Tag {
-	if v == nil {
-		return nil
-	}
 	res := &resource.Tag{
 		ID:   *v.ID,
 		Name: *v.Name,

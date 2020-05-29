@@ -84,9 +84,6 @@ func marshalResourceResourceToResourceResponse(v *resource.Resource) *ResourceRe
 // marshalResourceCatalogToCatalogResponse builds a value of type
 // *CatalogResponse from a value of type *resource.Catalog.
 func marshalResourceCatalogToCatalogResponse(v *resource.Catalog) *CatalogResponse {
-	if v == nil {
-		return nil
-	}
 	res := &CatalogResponse{
 		ID:   v.ID,
 		Type: v.Type,
@@ -98,9 +95,6 @@ func marshalResourceCatalogToCatalogResponse(v *resource.Catalog) *CatalogRespon
 // marshalResourceTagToTag builds a value of type *Tag from a value of type
 // *resource.Tag.
 func marshalResourceTagToTag(v *resource.Tag) *Tag {
-	if v == nil {
-		return nil
-	}
 	res := &Tag{
 		ID:   v.ID,
 		Name: v.Name,

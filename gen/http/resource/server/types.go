@@ -41,19 +41,19 @@ type ResourceResponse struct {
 	// Name of the Category
 	Name string `form:"name" json:"name" xml:"name"`
 	// Type of catalog where resource belongs
-	Catalog *CatalogResponse `form:"catalog,omitempty" json:"catalog,omitempty" xml:"catalog,omitempty"`
+	Catalog *CatalogResponse `form:"catalog" json:"catalog" xml:"catalog"`
 	// Type of resource
-	Type *string `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
+	Type string `form:"type" json:"type" xml:"type"`
 	// Description of resource
-	Description *string `form:"description,omitempty" json:"description,omitempty" xml:"description,omitempty"`
+	Description string `form:"description" json:"description" xml:"description"`
 	// Latest version o resource
-	LatestVersion *string `form:"latest_version,omitempty" json:"latest_version,omitempty" xml:"latest_version,omitempty"`
+	LatestVersion string `form:"latest_version" json:"latest_version" xml:"latest_version"`
+	// Tags related to resources
+	Tags []*Tag `form:"tags" json:"tags" xml:"tags"`
 	// Rating of resource
-	Rating *uint `form:"rating,omitempty" json:"rating,omitempty" xml:"rating,omitempty"`
+	Rating uint `form:"rating" json:"rating" xml:"rating"`
 	// Date when resource was last updated
-	LastUpdatedAt *string `form:"last_updated_at,omitempty" json:"last_updated_at,omitempty" xml:"last_updated_at,omitempty"`
-	// Tags associated with the category
-	Tags []*Tag `form:"tags,omitempty" json:"tags,omitempty" xml:"tags,omitempty"`
+	LastUpdatedAt string `form:"last_updated_at" json:"last_updated_at" xml:"last_updated_at"`
 }
 
 // CatalogResponse is used to define fields on response body types.
