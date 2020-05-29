@@ -13,6 +13,10 @@ import (
 
 	hub "github.com/tektoncd/hub/api"
 	resource "github.com/tektoncd/hub/api/gen/resource"
+
+	"github.com/jinzhu/gorm"
+	// Blank for package side effect: loads postgres drivers
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -33,6 +37,22 @@ func main() {
 	)
 	{
 		logger = log.New(os.Stderr, "[hub] ", log.Ltime)
+	}
+
+	// Database Connection
+	var (
+		db *gorm.DB
+	)
+	{
+		var err error
+		db, err = gorm.Open("postgres", "user=postgres password=postgres dbname=hub sslmode=disable")
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("Successful Db Connection")
+		defer db.Close()
+
+		db.AutoMigrate(hub.Resource{})
 	}
 
 	// Initialize the services.

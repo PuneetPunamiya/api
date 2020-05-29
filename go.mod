@@ -6,6 +6,8 @@ require (
 	github.com/dimfeld/httptreemux/v5 v5.2.2 // indirect
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
+	github.com/jinzhu/gorm v1.9.12
+	github.com/lib/pq v1.5.2
 	goa.design/goa/v3 v3.1.3
 	goa.design/plugins/v3 v3.1.3
 	golang.org/x/mod v0.3.0 // indirect
