@@ -52,7 +52,13 @@ func main() {
 		fmt.Println("Successful Db Connection")
 		defer db.Close()
 
-		db.AutoMigrate(hub.Resource{})
+		db.AutoMigrate(
+			hub.Resource{},
+			hub.Category{},
+			hub.Tag{},
+			hub.Catalog{},
+			hub.ResourceVersion{},
+		)
 	}
 
 	// Initialize the services.
