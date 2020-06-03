@@ -66,7 +66,7 @@ func main() {
 		resourceSvc resource.Service
 	)
 	{
-		resourceSvc = hub.NewResource(logger)
+		resourceSvc = hub.NewResource(db, logger)
 	}
 
 	// Wrap the services in endpoints that can be invoked from other services
