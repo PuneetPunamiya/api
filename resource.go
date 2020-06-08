@@ -2,6 +2,7 @@ package hub
 
 import (
 	"context"
+	"errors"
 	"log"
 
 	"github.com/jinzhu/gorm"
@@ -26,24 +27,38 @@ func (s *resourcesrvc) All(ctx context.Context) (res []*resource.Resource, err e
 	s.logger.Print("resource.All")
 
 	var all []Resource
-	s.db.Find(&all)
 
-	ret := make([]*resource.Resource, len(all))
-	for i, r := range all {
-		ret[i] = Init(r)
+	if err := s.db.Preload("Catalog").
+		Preload("Versions", func(db *gorm.DB) *gorm.DB {
+			return db.Order("resource_versions.id ASC")
+		}).
+		Preload("Tags").
+		Find(&all).Error; err != nil {
+		return []*resource.Resource{}, errors.New("Failed to fetch Resources")
 	}
-	return
-}
 
-// Init Converts
-func Init(r Resource) *resource.Resource {
-	return &resource.Resource{
-		ID:     uint(r.ID),
-		Name:   r.Name,
-		Type:   r.Type,
-		Rating: uint(r.Rating),
-
-		// TODO -->  Pass database data to resource struct data
-		// Catalog.ID: r.Catalog.ID,
+	for _, r := range all {
+		tags := []*resource.Tag{}
+		for _, t := range r.Tags {
+			tags = append(tags, &resource.Tag{
+				ID:   t.ID,
+				Name: t.Name,
+			})
+		}
+		latestVersion := r.Versions[len(r.Versions)-1]
+		res = append(res, &resource.Resource{
+			ID:            r.ID,
+			Name:          r.Name,
+			DisplayName:   r.DisplayName,
+			Tags:          tags,
+			Catalog:       &resource.Catalog{ID: r.Catalog.ID, Type: r.Catalog.Type},
+			Type:          r.Type,
+			LatestVersion: latestVersion.Version,
+			Description:   latestVersion.Description,
+			Rating:        uint(r.Rating),
+			LastUpdatedAt: r.UpdatedAt.String(),
+		})
 	}
+
+	return res, nil
 }

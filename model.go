@@ -36,13 +36,14 @@ type (
 	// Resource represents model which describe resources from a catalog
 	Resource struct {
 		gorm.Model
-		Name      string
-		Catalog   Catalog
-		Type      string
-		Rating    float64
-		CatalogID uint
-		Versions  []ResourceVersion
-		Tags      []*Tag `gorm:"many2many:resource_tags;"`
+		Name        string
+		DisplayName string
+		Catalog     Catalog
+		Type        string
+		Rating      float64
+		CatalogID   uint
+		Versions    []ResourceVersion
+		Tags        []*Tag `gorm:"many2many:resource_tags;"`
 	}
 
 	// ResourceVersion represents diffrent versions of a Resource

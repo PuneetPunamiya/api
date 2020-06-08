@@ -30,10 +30,12 @@ const ServiceName = "resource"
 var MethodNames = [1]string{"All"}
 
 type Resource struct {
-	// ID is the unique id of the category
+	// ID is the unique id of the resource
 	ID uint
-	// Name of the Category
+	// Name of the resource
 	Name string
+	// Display name of the resource
+	DisplayName string
 	// Type of catalog where resource belongs
 	Catalog *Catalog
 	// Type of resource

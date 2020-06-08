@@ -11,12 +11,10 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/jinzhu/gorm"
+	_ "github.com/lib/pq"
 	hub "github.com/tektoncd/hub/api"
 	resource "github.com/tektoncd/hub/api/gen/resource"
-
-	"github.com/jinzhu/gorm"
-	// Blank for package side effect: loads postgres drivers
-	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -39,7 +37,6 @@ func main() {
 		logger = log.New(os.Stderr, "[hub] ", log.Ltime)
 	}
 
-	// Database Connection
 	var (
 		db *gorm.DB
 	)

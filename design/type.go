@@ -6,12 +6,16 @@ import (
 
 var Resource = Type("Resource", func() {
 
-	Attribute("id", UInt, "ID is the unique id of the category", func() {
+	Attribute("id", UInt, "ID is the unique id of the resource", func() {
 		Example("id", 1)
 	})
 
-	Attribute("name", String, "Name of the Category", func() {
+	Attribute("name", String, "Name of the resource", func() {
 		Example("name", "golang")
+	})
+
+	Attribute("displayName", String, "Display name of the resource", func() {
+		Example("displayName", "golang")
 	})
 
 	Attribute("catalog", Catalog, "Type of catalog where resource belongs")
@@ -38,7 +42,7 @@ var Resource = Type("Resource", func() {
 		Example("last_updated_at", "2020-03-26T14:09:08.19599+05:30")
 	})
 
-	Required("id", "name", "catalog", "type", "description", "latest_version", "rating", "last_updated_at", "tags")
+	Required("id", "name", "displayName", "catalog", "type", "description", "latest_version", "rating", "last_updated_at", "tags")
 })
 
 var Catalog = Type("Catalog", func() {

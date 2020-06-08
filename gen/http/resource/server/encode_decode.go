@@ -62,6 +62,7 @@ func marshalResourceResourceToResourceResponse(v *resource.Resource) *ResourceRe
 	res := &ResourceResponse{
 		ID:            v.ID,
 		Name:          v.Name,
+		DisplayName:   v.DisplayName,
 		Type:          v.Type,
 		Description:   v.Description,
 		LatestVersion: v.LatestVersion,

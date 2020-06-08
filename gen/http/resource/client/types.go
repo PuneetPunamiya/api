@@ -36,10 +36,12 @@ type AllInternalErrorResponseBody struct {
 
 // ResourceResponse is used to define fields on response body types.
 type ResourceResponse struct {
-	// ID is the unique id of the category
+	// ID is the unique id of the resource
 	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	// Name of the Category
+	// Name of the resource
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// Display name of the resource
+	DisplayName *string `form:"displayName,omitempty" json:"displayName,omitempty" xml:"displayName,omitempty"`
 	// Type of catalog where resource belongs
 	Catalog *CatalogResponse `form:"catalog,omitempty" json:"catalog,omitempty" xml:"catalog,omitempty"`
 	// Type of resource
@@ -128,6 +130,9 @@ func ValidateResourceResponse(body *ResourceResponse) (err error) {
 	}
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.DisplayName == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("displayName", "body"))
 	}
 	if body.Catalog == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("catalog", "body"))

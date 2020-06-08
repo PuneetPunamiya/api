@@ -106,9 +106,13 @@ definitions:
         type: string
         description: Description of resource
         example: This Task is Golang task to build Go projects
+      displayName:
+        type: string
+        description: Display name of the resource
+        example: golang
       id:
         type: integer
-        description: ID is the unique id of the category
+        description: ID is the unique id of the resource
         example: 1
         format: int64
       last_updated_at:
@@ -121,7 +125,7 @@ definitions:
         example: "0.1"
       name:
         type: string
-        description: Name of the Category
+        description: Name of the resource
         example: golang
       rating:
         type: integer
@@ -147,6 +151,7 @@ definitions:
         id: 1
         type: official
       description: This Task is Golang task to build Go projects
+      displayName: golang
       id: 1
       last_updated_at: "2020-03-26T14:09:08.19599+05:30"
       latest_version: "0.1"
@@ -161,6 +166,7 @@ definitions:
     required:
     - id
     - name
+    - displayName
     - catalog
     - type
     - description

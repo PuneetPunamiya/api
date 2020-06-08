@@ -103,6 +103,7 @@ func unmarshalResourceResponseToResourceResource(v *ResourceResponse) *resource.
 	res := &resource.Resource{
 		ID:            *v.ID,
 		Name:          *v.Name,
+		DisplayName:   *v.DisplayName,
 		Type:          *v.Type,
 		Description:   *v.Description,
 		LatestVersion: *v.LatestVersion,

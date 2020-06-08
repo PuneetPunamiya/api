@@ -36,10 +36,12 @@ type AllInternalErrorResponseBody struct {
 
 // ResourceResponse is used to define fields on response body types.
 type ResourceResponse struct {
-	// ID is the unique id of the category
+	// ID is the unique id of the resource
 	ID uint `form:"id" json:"id" xml:"id"`
-	// Name of the Category
+	// Name of the resource
 	Name string `form:"name" json:"name" xml:"name"`
+	// Display name of the resource
+	DisplayName string `form:"displayName" json:"displayName" xml:"displayName"`
 	// Type of catalog where resource belongs
 	Catalog *CatalogResponse `form:"catalog" json:"catalog" xml:"catalog"`
 	// Type of resource
