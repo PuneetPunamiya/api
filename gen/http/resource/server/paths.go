@@ -7,7 +7,16 @@
 
 package server
 
+import (
+	"fmt"
+)
+
 // AllResourcePath returns the URL path to the resource service All HTTP endpoint.
 func AllResourcePath() string {
 	return "/resources"
+}
+
+// InfoResourcePath returns the URL path to the resource service Info HTTP endpoint.
+func InfoResourcePath(resourceID uint) string {
+	return fmt.Sprintf("/resource/%v", resourceID)
 }

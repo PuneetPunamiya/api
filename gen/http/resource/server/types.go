@@ -9,6 +9,7 @@ package server
 
 import (
 	resource "github.com/tektoncd/hub/api/gen/resource"
+	resourceviews "github.com/tektoncd/hub/api/gen/resource/views"
 	goa "goa.design/goa/v3/pkg"
 )
 
@@ -16,9 +17,52 @@ import (
 // response body.
 type AllResponseBody []*ResourceResponse
 
+// InfoResponseBody is the type of the "resource" service "Info" endpoint HTTP
+// response body.
+type InfoResponseBody struct {
+	// ID is the unique id of the resource
+	ID uint `form:"id" json:"id" xml:"id"`
+	// Name of the resource
+	Name string `form:"name" json:"name" xml:"name"`
+	// Display name of the resource
+	DisplayName string `form:"displayName" json:"displayName" xml:"displayName"`
+	// Type of catalog where resource belongs
+	Catalog *CatalogResponseBody `form:"catalog" json:"catalog" xml:"catalog"`
+	// Type of resource
+	Type string `form:"type" json:"type" xml:"type"`
+	// Description of resource
+	Description string `form:"description" json:"description" xml:"description"`
+	// Latest version o resource
+	LatestVersion string `form:"latest_version" json:"latest_version" xml:"latest_version"`
+	// Rating of resource
+	Rating uint `form:"rating" json:"rating" xml:"rating"`
+	// Date when resource was last updated
+	LastUpdatedAt string `form:"last_updated_at" json:"last_updated_at" xml:"last_updated_at"`
+	// Version of resource
+	Versions []*VersionsResponseBody `form:"versions" json:"versions" xml:"versions"`
+}
+
 // AllInternalErrorResponseBody is the type of the "resource" service "All"
 // endpoint HTTP response body for the "internal-error" error.
 type AllInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// InfoInternalErrorResponseBody is the type of the "resource" service "Info"
+// endpoint HTTP response body for the "internal-error" error.
+type InfoInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -74,12 +118,53 @@ type Tag struct {
 	Name string `form:"name" json:"name" xml:"name"`
 }
 
+// CatalogResponseBody is used to define fields on response body types.
+type CatalogResponseBody struct {
+	// ID is the unique id of the category
+	ID uint `form:"id" json:"id" xml:"id"`
+	// Type of support tier
+	Type string `form:"type" json:"type" xml:"type"`
+}
+
+// VersionsResponseBody is used to define fields on response body types.
+type VersionsResponseBody struct {
+	// Version ID of the resource to be fetched
+	VersionID uint `form:"versionId" json:"versionId" xml:"versionId"`
+	// Version of the resource to be fetched
+	Version string `form:"version" json:"version" xml:"version"`
+}
+
 // NewAllResponseBody builds the HTTP response body from the result of the
 // "All" endpoint of the "resource" service.
 func NewAllResponseBody(res []*resource.Resource) AllResponseBody {
 	body := make([]*ResourceResponse, len(res))
 	for i, val := range res {
 		body[i] = marshalResourceResourceToResourceResponse(val)
+	}
+	return body
+}
+
+// NewInfoResponseBody builds the HTTP response body from the result of the
+// "Info" endpoint of the "resource" service.
+func NewInfoResponseBody(res *resourceviews.DetailView) *InfoResponseBody {
+	body := &InfoResponseBody{
+		ID:            *res.ID,
+		Name:          *res.Name,
+		DisplayName:   *res.DisplayName,
+		Type:          *res.Type,
+		Description:   *res.Description,
+		LatestVersion: *res.LatestVersion,
+		Rating:        *res.Rating,
+		LastUpdatedAt: *res.LastUpdatedAt,
+	}
+	if res.Catalog != nil {
+		body.Catalog = marshalResourceviewsCatalogViewToCatalogResponseBody(res.Catalog)
+	}
+	if res.Versions != nil {
+		body.Versions = make([]*VersionsResponseBody, len(res.Versions))
+		for i, val := range res.Versions {
+			body.Versions[i] = marshalResourceviewsVersionsViewToVersionsResponseBody(val)
+		}
 	}
 	return body
 }
@@ -96,4 +181,26 @@ func NewAllInternalErrorResponseBody(res *goa.ServiceError) *AllInternalErrorRes
 		Fault:     res.Fault,
 	}
 	return body
+}
+
+// NewInfoInternalErrorResponseBody builds the HTTP response body from the
+// result of the "Info" endpoint of the "resource" service.
+func NewInfoInternalErrorResponseBody(res *goa.ServiceError) *InfoInternalErrorResponseBody {
+	body := &InfoInternalErrorResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewInfoPayload builds a resource service Info endpoint payload.
+func NewInfoPayload(resourceID uint) *resource.InfoPayload {
+	v := &resource.InfoPayload{}
+	v.ResourceID = resourceID
+
+	return v
 }

@@ -15,6 +15,7 @@ import (
 	"net/url"
 
 	resource "github.com/tektoncd/hub/api/gen/resource"
+	resourceviews "github.com/tektoncd/hub/api/gen/resource/views"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )
@@ -97,6 +98,90 @@ func DecodeAllResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody
 	}
 }
 
+// BuildInfoRequest instantiates a HTTP request object with method and path set
+// to call the "resource" service "Info" endpoint
+func (c *Client) BuildInfoRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	var (
+		resourceID uint
+	)
+	{
+		p, ok := v.(*resource.InfoPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("resource", "Info", "*resource.InfoPayload", v)
+		}
+		resourceID = p.ResourceID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: InfoResourcePath(resourceID)}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("resource", "Info", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// DecodeInfoResponse returns a decoder for responses returned by the resource
+// Info endpoint. restoreBody controls whether the response body should be
+// restored after having been read.
+// DecodeInfoResponse may return the following errors:
+//	- "internal-error" (type *goa.ServiceError): http.StatusInternalServerError
+//	- error: internal error
+func DecodeInfoResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body InfoResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("resource", "Info", err)
+			}
+			p := NewInfoDetailOK(&body)
+			view := "default"
+			vres := &resourceviews.Detail{Projected: p, View: view}
+			if err = resourceviews.ValidateDetail(vres); err != nil {
+				return nil, goahttp.ErrValidationError("resource", "Info", err)
+			}
+			res := resource.NewDetail(vres)
+			return res, nil
+		case http.StatusInternalServerError:
+			var (
+				body InfoInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("resource", "Info", err)
+			}
+			err = ValidateInfoInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("resource", "Info", err)
+			}
+			return nil, NewInfoInternalError(&body)
+		default:
+			body, _ := ioutil.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("resource", "Info", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // unmarshalResourceResponseToResourceResource builds a value of type
 // *resource.Resource from a value of type *ResourceResponse.
 func unmarshalResourceResponseToResourceResource(v *ResourceResponse) *resource.Resource {
@@ -136,6 +221,28 @@ func unmarshalTagToResourceTag(v *Tag) *resource.Tag {
 	res := &resource.Tag{
 		ID:   *v.ID,
 		Name: *v.Name,
+	}
+
+	return res
+}
+
+// unmarshalCatalogResponseBodyToResourceviewsCatalogView builds a value of
+// type *resourceviews.CatalogView from a value of type *CatalogResponseBody.
+func unmarshalCatalogResponseBodyToResourceviewsCatalogView(v *CatalogResponseBody) *resourceviews.CatalogView {
+	res := &resourceviews.CatalogView{
+		ID:   v.ID,
+		Type: v.Type,
+	}
+
+	return res
+}
+
+// unmarshalVersionsResponseBodyToResourceviewsVersionsView builds a value of
+// type *resourceviews.VersionsView from a value of type *VersionsResponseBody.
+func unmarshalVersionsResponseBodyToResourceviewsVersionsView(v *VersionsResponseBody) *resourceviews.VersionsView {
+	res := &resourceviews.VersionsView{
+		VersionID: v.VersionID,
+		Version:   v.Version,
 	}
 
 	return res

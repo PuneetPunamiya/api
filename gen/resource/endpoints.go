@@ -15,19 +15,22 @@ import (
 
 // Endpoints wraps the "resource" service endpoints.
 type Endpoints struct {
-	All goa.Endpoint
+	All  goa.Endpoint
+	Info goa.Endpoint
 }
 
 // NewEndpoints wraps the methods of the "resource" service with endpoints.
 func NewEndpoints(s Service) *Endpoints {
 	return &Endpoints{
-		All: NewAllEndpoint(s),
+		All:  NewAllEndpoint(s),
+		Info: NewInfoEndpoint(s),
 	}
 }
 
 // Use applies the given middleware to all the "resource" service endpoints.
 func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.All = m(e.All)
+	e.Info = m(e.Info)
 }
 
 // NewAllEndpoint returns an endpoint function that calls the method "All" of
@@ -35,5 +38,19 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 func NewAllEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		return s.All(ctx)
+	}
+}
+
+// NewInfoEndpoint returns an endpoint function that calls the method "Info" of
+// service "resource".
+func NewInfoEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		p := req.(*InfoPayload)
+		res, err := s.Info(ctx, p)
+		if err != nil {
+			return nil, err
+		}
+		vres := NewViewedDetail(res, "default")
+		return vres, nil
 	}
 }

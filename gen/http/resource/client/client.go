@@ -20,6 +20,9 @@ type Client struct {
 	// All Doer is the HTTP client used to make requests to the All endpoint.
 	AllDoer goahttp.Doer
 
+	// Info Doer is the HTTP client used to make requests to the Info endpoint.
+	InfoDoer goahttp.Doer
+
 	// CORS Doer is the HTTP client used to make requests to the  endpoint.
 	CORSDoer goahttp.Doer
 
@@ -44,6 +47,7 @@ func NewClient(
 ) *Client {
 	return &Client{
 		AllDoer:             doer,
+		InfoDoer:            doer,
 		CORSDoer:            doer,
 		RestoreResponseBody: restoreBody,
 		scheme:              scheme,
@@ -67,6 +71,25 @@ func (c *Client) All() goa.Endpoint {
 		resp, err := c.AllDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("resource", "All", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// Info returns an endpoint that makes HTTP requests to the resource service
+// Info server.
+func (c *Client) Info() goa.Endpoint {
+	var (
+		decodeResponse = DecodeInfoResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildInfoRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.InfoDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("resource", "Info", err)
 		}
 		return decodeResponse(resp)
 	}

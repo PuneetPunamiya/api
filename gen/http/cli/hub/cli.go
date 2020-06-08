@@ -23,7 +23,7 @@ import (
 //    command (subcommand1|subcommand2|...)
 //
 func UsageCommands() string {
-	return `resource all
+	return `resource (all|info)
 `
 }
 
@@ -46,9 +46,13 @@ func ParseEndpoint(
 		resourceFlags = flag.NewFlagSet("resource", flag.ContinueOnError)
 
 		resourceAllFlags = flag.NewFlagSet("all", flag.ExitOnError)
+
+		resourceInfoFlags          = flag.NewFlagSet("info", flag.ExitOnError)
+		resourceInfoResourceIDFlag = resourceInfoFlags.String("resource-id", "REQUIRED", "ID of resource to be shown")
 	)
 	resourceFlags.Usage = resourceUsage
 	resourceAllFlags.Usage = resourceAllUsage
+	resourceInfoFlags.Usage = resourceInfoUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -87,6 +91,9 @@ func ParseEndpoint(
 			case "all":
 				epf = resourceAllFlags
 
+			case "info":
+				epf = resourceInfoFlags
+
 			}
 
 		}
@@ -115,6 +122,9 @@ func ParseEndpoint(
 			case "all":
 				endpoint = c.All()
 				data = nil
+			case "info":
+				endpoint = c.Info()
+				data, err = resourcec.BuildInfoPayload(*resourceInfoResourceIDFlag)
 			}
 		}
 	}
@@ -133,6 +143,7 @@ Usage:
 
 COMMAND:
     all: Get all Resources
+    info: Get one Resource info
 
 Additional help:
     %s resource COMMAND --help
@@ -145,5 +156,16 @@ Get all Resources
 
 Example:
     `+os.Args[0]+` resource all
+`, os.Args[0])
+}
+
+func resourceInfoUsage() {
+	fmt.Fprintf(os.Stderr, `%s [flags] resource info -resource-id UINT
+
+Get one Resource info
+    -resource-id UINT: ID of resource to be shown
+
+Example:
+    `+os.Args[0]+` resource info --resource-id 5393976028859956723
 `, os.Args[0])
 }

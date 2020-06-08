@@ -62,3 +62,39 @@ func (s *resourcesrvc) All(ctx context.Context) (res []*resource.Resource, err e
 
 	return res, nil
 }
+
+// Get one Resource info
+func (s *resourcesrvc) Info(ctx context.Context, p *resource.InfoPayload) (res *resource.Detail, err error) {
+	res = &resource.Detail{}
+
+	var all []Resource
+
+	// TODO --> Add tags
+	if err := s.db.Preload("Catalog").
+		Preload("Versions", func(db *gorm.DB) *gorm.DB {
+			return db.Order("resource_versions.id ASC")
+		}).
+		Find(&all).Error; err != nil {
+		return &resource.Detail{}, errors.New("Failed to fetch Resources")
+	}
+
+	for _, singleResource := range all {
+		latestVersion := singleResource.Versions[len(singleResource.Versions)-1]
+
+		if singleResource.ID == p.ResourceID {
+			res.ID = singleResource.ID
+			res.Name = singleResource.Name
+			res.DisplayName = singleResource.DisplayName
+			res.Catalog = &resource.Catalog{ID: singleResource.Catalog.ID, Type: singleResource.Catalog.Type}
+			res.Type = singleResource.Type
+			res.LatestVersion = latestVersion.Version
+			res.Description = latestVersion.Description
+			res.Rating = uint(singleResource.Rating)
+			res.LastUpdatedAt = singleResource.UpdatedAt.String()
+
+		}
+	}
+
+	s.logger.Print("resource.Info")
+	return
+}

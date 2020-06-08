@@ -10,6 +10,7 @@ package resource
 import (
 	"context"
 
+	resourceviews "github.com/tektoncd/hub/api/gen/resource/views"
 	goa "goa.design/goa/v3/pkg"
 )
 
@@ -17,6 +18,8 @@ import (
 type Service interface {
 	// Get all Resources
 	All(context.Context) (res []*Resource, err error)
+	// Get one Resource info
+	Info(context.Context, *InfoPayload) (res *Detail, err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -27,7 +30,37 @@ const ServiceName = "resource"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [1]string{"All"}
+var MethodNames = [2]string{"All", "Info"}
+
+// InfoPayload is the payload type of the resource service Info method.
+type InfoPayload struct {
+	// ID of resource to be shown
+	ResourceID uint
+}
+
+// Detail is the result type of the resource service Info method.
+type Detail struct {
+	// ID is the unique id of the resource
+	ID uint
+	// Name of the resource
+	Name string
+	// Display name of the resource
+	DisplayName string
+	// Type of catalog where resource belongs
+	Catalog *Catalog
+	// Type of resource
+	Type string
+	// Description of resource
+	Description string
+	// Latest version o resource
+	LatestVersion string
+	// Rating of resource
+	Rating uint
+	// Date when resource was last updated
+	LastUpdatedAt string
+	// Version of resource
+	Versions []*Versions
+}
 
 type Resource struct {
 	// ID is the unique id of the resource
@@ -66,6 +99,13 @@ type Tag struct {
 	Name string
 }
 
+type Versions struct {
+	// Version ID of the resource to be fetched
+	VersionID uint
+	// Version of the resource to be fetched
+	Version string
+}
+
 // MakeInternalError builds a goa.ServiceError from an error.
 func MakeInternalError(err error) *goa.ServiceError {
 	return &goa.ServiceError{
@@ -73,4 +113,130 @@ func MakeInternalError(err error) *goa.ServiceError {
 		ID:      goa.NewErrorID(),
 		Message: err.Error(),
 	}
+}
+
+// NewDetail initializes result type Detail from viewed result type Detail.
+func NewDetail(vres *resourceviews.Detail) *Detail {
+	return newDetail(vres.Projected)
+}
+
+// NewViewedDetail initializes viewed result type Detail from result type
+// Detail using the given view.
+func NewViewedDetail(res *Detail, view string) *resourceviews.Detail {
+	p := newDetailView(res)
+	return &resourceviews.Detail{Projected: p, View: "default"}
+}
+
+// newDetail converts projected type Detail to service type Detail.
+func newDetail(vres *resourceviews.DetailView) *Detail {
+	res := &Detail{}
+	if vres.ID != nil {
+		res.ID = *vres.ID
+	}
+	if vres.Name != nil {
+		res.Name = *vres.Name
+	}
+	if vres.DisplayName != nil {
+		res.DisplayName = *vres.DisplayName
+	}
+	if vres.Type != nil {
+		res.Type = *vres.Type
+	}
+	if vres.Description != nil {
+		res.Description = *vres.Description
+	}
+	if vres.LatestVersion != nil {
+		res.LatestVersion = *vres.LatestVersion
+	}
+	if vres.Rating != nil {
+		res.Rating = *vres.Rating
+	}
+	if vres.LastUpdatedAt != nil {
+		res.LastUpdatedAt = *vres.LastUpdatedAt
+	}
+	if vres.Catalog != nil {
+		res.Catalog = transformResourceviewsCatalogViewToCatalog(vres.Catalog)
+	}
+	if vres.Versions != nil {
+		res.Versions = make([]*Versions, len(vres.Versions))
+		for i, val := range vres.Versions {
+			res.Versions[i] = transformResourceviewsVersionsViewToVersions(val)
+		}
+	}
+	return res
+}
+
+// newDetailView projects result type Detail to projected type DetailView using
+// the "default" view.
+func newDetailView(res *Detail) *resourceviews.DetailView {
+	vres := &resourceviews.DetailView{
+		ID:            &res.ID,
+		Name:          &res.Name,
+		DisplayName:   &res.DisplayName,
+		Type:          &res.Type,
+		Description:   &res.Description,
+		LatestVersion: &res.LatestVersion,
+		Rating:        &res.Rating,
+		LastUpdatedAt: &res.LastUpdatedAt,
+	}
+	if res.Catalog != nil {
+		vres.Catalog = transformCatalogToResourceviewsCatalogView(res.Catalog)
+	}
+	if res.Versions != nil {
+		vres.Versions = make([]*resourceviews.VersionsView, len(res.Versions))
+		for i, val := range res.Versions {
+			vres.Versions[i] = transformVersionsToResourceviewsVersionsView(val)
+		}
+	}
+	return vres
+}
+
+// transformResourceviewsCatalogViewToCatalog builds a value of type *Catalog
+// from a value of type *resourceviews.CatalogView.
+func transformResourceviewsCatalogViewToCatalog(v *resourceviews.CatalogView) *Catalog {
+	if v == nil {
+		return nil
+	}
+	res := &Catalog{
+		ID:   *v.ID,
+		Type: *v.Type,
+	}
+
+	return res
+}
+
+// transformResourceviewsVersionsViewToVersions builds a value of type
+// *Versions from a value of type *resourceviews.VersionsView.
+func transformResourceviewsVersionsViewToVersions(v *resourceviews.VersionsView) *Versions {
+	if v == nil {
+		return nil
+	}
+	res := &Versions{
+		VersionID: *v.VersionID,
+		Version:   *v.Version,
+	}
+
+	return res
+}
+
+// transformCatalogToResourceviewsCatalogView builds a value of type
+// *resourceviews.CatalogView from a value of type *Catalog.
+func transformCatalogToResourceviewsCatalogView(v *Catalog) *resourceviews.CatalogView {
+	res := &resourceviews.CatalogView{
+		ID:   &v.ID,
+		Type: &v.Type,
+	}
+
+	return res
+}
+
+// transformVersionsToResourceviewsVersionsView builds a value of type
+// *resourceviews.VersionsView from a value of type *Versions.
+func transformVersionsToResourceviewsVersionsView(v *Versions) *resourceviews.VersionsView {
+	res := &resourceviews.VersionsView{
+		VersionID: &v.VersionID,
+		Version:   &v.Version,
+	}
+
+	return res
 }

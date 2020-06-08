@@ -20,4 +20,19 @@ var _ = Service("resource", func() {
 			Response("internal-error", StatusInternalServerError)
 		})
 	})
+
+	// Method to get a resource info
+	Method("Info", func() {
+		Description("Get one Resource info")
+		Payload(func() {
+			Attribute("resourceId", UInt, "ID of resource to be shown")
+			Required("resourceId")
+		})
+		Result(Detail)
+		HTTP(func() {
+			GET("/resource/{resourceId}")
+			Response(StatusOK)
+			Response("internal-error", StatusInternalServerError)
+		})
+	})
 })

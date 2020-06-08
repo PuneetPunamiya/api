@@ -15,13 +15,15 @@ import (
 
 // Client is the "resource" service client.
 type Client struct {
-	AllEndpoint goa.Endpoint
+	AllEndpoint  goa.Endpoint
+	InfoEndpoint goa.Endpoint
 }
 
 // NewClient initializes a "resource" service client given the endpoints.
-func NewClient(all goa.Endpoint) *Client {
+func NewClient(all, info goa.Endpoint) *Client {
 	return &Client{
-		AllEndpoint: all,
+		AllEndpoint:  all,
+		InfoEndpoint: info,
 	}
 }
 
@@ -33,4 +35,14 @@ func (c *Client) All(ctx context.Context) (res []*Resource, err error) {
 		return
 	}
 	return ires.([]*Resource), nil
+}
+
+// Info calls the "Info" endpoint of the "resource" service.
+func (c *Client) Info(ctx context.Context, p *InfoPayload) (res *Detail, err error) {
+	var ires interface{}
+	ires, err = c.InfoEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*Detail), nil
 }

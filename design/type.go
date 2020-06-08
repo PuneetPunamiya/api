@@ -4,6 +4,39 @@ import (
 	. "goa.design/goa/v3/dsl"
 )
 
+var Detail = ResultType("Detail", func() {
+	Reference(Resource)
+
+	Attributes(func() {
+
+		Attribute("id")
+
+		Attribute("name")
+
+		Attribute("displayName")
+
+		Attribute("catalog")
+
+		Attribute("type")
+
+		Attribute("description")
+
+		Attribute("latest_version")
+
+		// TODO --> Add tags
+		// Attribute(8, "tags")
+
+		Attribute("rating")
+
+		Attribute("last_updated_at")
+
+		Attribute("versions", ArrayOf(Versions), "Version of resource")
+
+		Required("id", "name", "displayName", "catalog", "type", "description", "latest_version", "rating", "last_updated_at", "tags", "versions")
+	})
+
+})
+
 var Resource = Type("Resource", func() {
 
 	Attribute("id", UInt, "ID is the unique id of the resource", func() {
@@ -43,6 +76,18 @@ var Resource = Type("Resource", func() {
 	})
 
 	Required("id", "name", "displayName", "catalog", "type", "description", "latest_version", "rating", "last_updated_at", "tags")
+})
+
+var Versions = Type("Versions", func() {
+	Attribute("versionId", UInt, "Version ID of the resource to be fetched", func() {
+		Example("versionId", 1)
+	})
+
+	Attribute("version", String, "Version of the resource to be fetched", func() {
+		Example("versionId", "0,1")
+	})
+	Required("versionId", "version")
+
 })
 
 var Catalog = Type("Catalog", func() {

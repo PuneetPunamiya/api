@@ -6,3 +6,29 @@
 // $ goa gen github.com/tektoncd/hub/api/design
 
 package client
+
+import (
+	"fmt"
+	"strconv"
+
+	resource "github.com/tektoncd/hub/api/gen/resource"
+)
+
+// BuildInfoPayload builds the payload for the resource Info endpoint from CLI
+// flags.
+func BuildInfoPayload(resourceInfoResourceID string) (*resource.InfoPayload, error) {
+	var err error
+	var resourceID uint
+	{
+		var v uint64
+		v, err = strconv.ParseUint(resourceInfoResourceID, 10, 64)
+		resourceID = uint(v)
+		if err != nil {
+			return nil, fmt.Errorf("invalid value for resourceID, must be UINT")
+		}
+	}
+	v := &resource.InfoPayload{}
+	v.ResourceID = resourceID
+
+	return v, nil
+}

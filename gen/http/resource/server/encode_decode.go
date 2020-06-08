@@ -10,8 +10,10 @@ package server
 import (
 	"context"
 	"net/http"
+	"strconv"
 
 	resource "github.com/tektoncd/hub/api/gen/resource"
+	resourceviews "github.com/tektoncd/hub/api/gen/resource/views"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )
@@ -46,6 +48,73 @@ func EncodeAllError(encoder func(context.Context, http.ResponseWriter) goahttp.E
 				body = formatter(res)
 			} else {
 				body = NewAllInternalErrorResponseBody(res)
+			}
+			w.Header().Set("goa-error", "internal-error")
+			w.WriteHeader(http.StatusInternalServerError)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
+
+// EncodeInfoResponse returns an encoder for responses returned by the resource
+// Info endpoint.
+func EncodeInfoResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		res := v.(*resourceviews.Detail)
+		enc := encoder(ctx, w)
+		body := NewInfoResponseBody(res.Projected)
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// DecodeInfoRequest returns a decoder for requests sent to the resource Info
+// endpoint.
+func DecodeInfoRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
+	return func(r *http.Request) (interface{}, error) {
+		var (
+			resourceID uint
+			err        error
+
+			params = mux.Vars(r)
+		)
+		{
+			resourceIDRaw := params["resourceId"]
+			v, err2 := strconv.ParseUint(resourceIDRaw, 10, strconv.IntSize)
+			if err2 != nil {
+				err = goa.MergeErrors(err, goa.InvalidFieldTypeError("resourceID", resourceIDRaw, "unsigned integer"))
+			}
+			resourceID = uint(v)
+		}
+		if err != nil {
+			return nil, err
+		}
+		payload := NewInfoPayload(resourceID)
+
+		return payload, nil
+	}
+}
+
+// EncodeInfoError returns an encoder for errors returned by the Info resource
+// endpoint.
+func EncodeInfoError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		en, ok := v.(ErrorNamer)
+		if !ok {
+			return encodeError(ctx, w, v)
+		}
+		switch en.ErrorName() {
+		case "internal-error":
+			res := v.(*goa.ServiceError)
+			enc := encoder(ctx, w)
+			var body interface{}
+			if formatter != nil {
+				body = formatter(res)
+			} else {
+				body = NewInfoInternalErrorResponseBody(res)
 			}
 			w.Header().Set("goa-error", "internal-error")
 			w.WriteHeader(http.StatusInternalServerError)
@@ -99,6 +168,28 @@ func marshalResourceTagToTag(v *resource.Tag) *Tag {
 	res := &Tag{
 		ID:   v.ID,
 		Name: v.Name,
+	}
+
+	return res
+}
+
+// marshalResourceviewsCatalogViewToCatalogResponseBody builds a value of type
+// *CatalogResponseBody from a value of type *resourceviews.CatalogView.
+func marshalResourceviewsCatalogViewToCatalogResponseBody(v *resourceviews.CatalogView) *CatalogResponseBody {
+	res := &CatalogResponseBody{
+		ID:   *v.ID,
+		Type: *v.Type,
+	}
+
+	return res
+}
+
+// marshalResourceviewsVersionsViewToVersionsResponseBody builds a value of
+// type *VersionsResponseBody from a value of type *resourceviews.VersionsView.
+func marshalResourceviewsVersionsViewToVersionsResponseBody(v *resourceviews.VersionsView) *VersionsResponseBody {
+	res := &VersionsResponseBody{
+		VersionID: *v.VersionID,
+		Version:   *v.Version,
 	}
 
 	return res
