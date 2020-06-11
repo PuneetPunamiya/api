@@ -35,6 +35,8 @@ type DetailView struct {
 	Description *string
 	// Latest version o resource
 	LatestVersion *string
+	// Tags related to resources
+	Tags []*Tag
 	// Rating of resource
 	Rating *uint
 	// Date when resource was last updated
@@ -49,6 +51,14 @@ type CatalogView struct {
 	ID *uint
 	// Type of support tier
 	Type *string
+}
+
+// Tag is a type that runs validations on a projected type.
+type Tag struct {
+	// ID is the unique id of the tag
+	ID *uint
+	// Name of the tag
+	Name *string
 }
 
 // VersionsView is a type that runs validations on a projected type.
@@ -71,6 +81,7 @@ var (
 			"type",
 			"description",
 			"latest_version",
+			"tags",
 			"rating",
 			"last_updated_at",
 			"versions",
@@ -113,6 +124,9 @@ func ValidateDetailView(result *DetailView) (err error) {
 	if result.LatestVersion == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("latest_version", "result"))
 	}
+	if result.Tags == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("tags", "result"))
+	}
 	if result.Rating == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("rating", "result"))
 	}
@@ -125,6 +139,13 @@ func ValidateDetailView(result *DetailView) (err error) {
 	if result.Catalog != nil {
 		if err2 := ValidateCatalogView(result.Catalog); err2 != nil {
 			err = goa.MergeErrors(err, err2)
+		}
+	}
+	for _, e := range result.Tags {
+		if e != nil {
+			if err2 := ValidateTag(e); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
 		}
 	}
 	for _, e := range result.Versions {
@@ -144,6 +165,17 @@ func ValidateCatalogView(result *CatalogView) (err error) {
 	}
 	if result.Type == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("type", "result"))
+	}
+	return
+}
+
+// ValidateTag runs the validations defined on Tag.
+func ValidateTag(result *Tag) (err error) {
+	if result.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
+	}
+	if result.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "result"))
 	}
 	return
 }

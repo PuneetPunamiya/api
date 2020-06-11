@@ -67,34 +67,28 @@ func (s *resourcesrvc) All(ctx context.Context) (res []*resource.Resource, err e
 func (s *resourcesrvc) Info(ctx context.Context, p *resource.InfoPayload) (res *resource.Detail, err error) {
 	res = &resource.Detail{}
 
-	var all []Resource
+	var one Resource
 
-	// TODO --> Add tags
 	if err := s.db.Preload("Catalog").
 		Preload("Versions", func(db *gorm.DB) *gorm.DB {
 			return db.Order("resource_versions.id ASC")
 		}).
-		Find(&all).Error; err != nil {
-		return &resource.Detail{}, errors.New("Failed to fetch Resources")
+		Where("id = ?", p.ResourceID).Find(&one).Error; err != nil {
+		errors.New("Failed to fetch the resources")
 	}
 
-	for _, singleResource := range all {
-		latestVersion := singleResource.Versions[len(singleResource.Versions)-1]
+	latestVersion := one.Versions[len(one.Versions)-1]
 
-		if singleResource.ID == p.ResourceID {
-			res.ID = singleResource.ID
-			res.Name = singleResource.Name
-			res.DisplayName = singleResource.DisplayName
-			res.Catalog = &resource.Catalog{ID: singleResource.Catalog.ID, Type: singleResource.Catalog.Type}
-			res.Type = singleResource.Type
-			res.LatestVersion = latestVersion.Version
-			res.Description = latestVersion.Description
-			res.Rating = uint(singleResource.Rating)
-			res.LastUpdatedAt = singleResource.UpdatedAt.String()
-
-		}
-	}
+	res.ID = one.ID
+	res.Name = one.Name
+	res.DisplayName = one.DisplayName
+	res.Catalog = &resource.Catalog{ID: one.Catalog.ID, Type: one.Catalog.Type}
+	res.Type = one.Type
+	res.LatestVersion = latestVersion.Version
+	res.Description = latestVersion.Description
+	res.Rating = uint(one.Rating)
+	res.LastUpdatedAt = one.UpdatedAt.String()
 
 	s.logger.Print("resource.Info")
-	return
+	return res, nil
 }

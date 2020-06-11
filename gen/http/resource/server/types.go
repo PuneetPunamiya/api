@@ -34,6 +34,8 @@ type InfoResponseBody struct {
 	Description string `form:"description" json:"description" xml:"description"`
 	// Latest version o resource
 	LatestVersion string `form:"latest_version" json:"latest_version" xml:"latest_version"`
+	// Tags related to resources
+	Tags []*Tag1 `form:"tags" json:"tags" xml:"tags"`
 	// Rating of resource
 	Rating uint `form:"rating" json:"rating" xml:"rating"`
 	// Date when resource was last updated
@@ -159,6 +161,12 @@ func NewInfoResponseBody(res *resourceviews.DetailView) *InfoResponseBody {
 	}
 	if res.Catalog != nil {
 		body.Catalog = marshalResourceviewsCatalogViewToCatalogResponseBody(res.Catalog)
+	}
+	if res.Tags != nil {
+		body.Tags = make([]*Tag1, len(res.Tags))
+		for i, val := range res.Tags {
+			body.Tags[i] = marshalResourceviewsTagToTag1(val)
+		}
 	}
 	if res.Versions != nil {
 		body.Versions = make([]*VersionsResponseBody, len(res.Versions))

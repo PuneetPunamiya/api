@@ -237,6 +237,17 @@ func unmarshalCatalogResponseBodyToResourceviewsCatalogView(v *CatalogResponseBo
 	return res
 }
 
+// unmarshalTag1ToResourceviewsTag builds a value of type *resourceviews.Tag
+// from a value of type *Tag1.
+func unmarshalTag1ToResourceviewsTag(v *Tag1) *resourceviews.Tag {
+	res := &resourceviews.Tag{
+		ID:   v.ID,
+		Name: v.Name,
+	}
+
+	return res
+}
+
 // unmarshalVersionsResponseBodyToResourceviewsVersionsView builds a value of
 // type *resourceviews.VersionsView from a value of type *VersionsResponseBody.
 func unmarshalVersionsResponseBodyToResourceviewsVersionsView(v *VersionsResponseBody) *resourceviews.VersionsView {

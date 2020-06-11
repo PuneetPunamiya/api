@@ -12,7 +12,6 @@ import (
 	"sync"
 
 	"github.com/jinzhu/gorm"
-	_ "github.com/lib/pq"
 	hub "github.com/tektoncd/hub/api"
 	resource "github.com/tektoncd/hub/api/gen/resource"
 )
@@ -63,7 +62,7 @@ func main() {
 		resourceSvc resource.Service
 	)
 	{
-		resourceSvc = hub.NewResource(db, logger)
+		resourceSvc = hub.NewResource(logger)
 	}
 
 	// Wrap the services in endpoints that can be invoked from other services

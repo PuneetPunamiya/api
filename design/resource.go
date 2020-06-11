@@ -35,4 +35,20 @@ var _ = Service("resource", func() {
 			Response("internal-error", StatusInternalServerError)
 		})
 	})
+
+	// // Method to get a resource info
+	// Method("Infotkn", func() {
+	// 	Description("Get one Resource info")
+	// 	Payload(func() {
+	// 		Attribute("type", String, "Type of Resource")
+	// 		Attribute("name", String, "Name of Resource")
+	// 		Required("type", "name")
+	// 	})
+	// 	Result(Detail)
+	// 	HTTP(func() {
+	// 		GET("/resource/{type}/{name}")
+	// 		Response(StatusOK)
+	// 		Response("internal-error", StatusInternalServerError)
+	// 	})
+	// })
 })

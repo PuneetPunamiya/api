@@ -184,6 +184,17 @@ func marshalResourceviewsCatalogViewToCatalogResponseBody(v *resourceviews.Catal
 	return res
 }
 
+// marshalResourceviewsTagToTag1 builds a value of type *Tag1 from a value of
+// type *resourceviews.Tag.
+func marshalResourceviewsTagToTag1(v *resourceviews.Tag) *Tag1 {
+	res := &Tag1{
+		ID:   *v.ID,
+		Name: *v.Name,
+	}
+
+	return res
+}
+
 // marshalResourceviewsVersionsViewToVersionsResponseBody builds a value of
 // type *VersionsResponseBody from a value of type *resourceviews.VersionsView.
 func marshalResourceviewsVersionsViewToVersionsResponseBody(v *resourceviews.VersionsView) *VersionsResponseBody {

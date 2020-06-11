@@ -23,8 +23,7 @@ var Detail = ResultType("Detail", func() {
 
 		Attribute("latest_version")
 
-		// TODO --> Add tags
-		// Attribute(8, "tags")
+		Attribute("tags")
 
 		Attribute("rating")
 
@@ -32,7 +31,31 @@ var Detail = ResultType("Detail", func() {
 
 		Attribute("versions", ArrayOf(Versions), "Version of resource")
 
-		Required("id", "name", "displayName", "catalog", "type", "description", "latest_version", "rating", "last_updated_at", "tags", "versions")
+		Required("id", "name", "displayName", "catalog", "type", "description", "latest_version", "tags", "rating", "last_updated_at", "versions")
+	})
+
+	View("default", func() {
+		Attribute("id")
+
+		Attribute("name")
+
+		Attribute("displayName")
+
+		Attribute("catalog")
+
+		Attribute("type")
+
+		Attribute("description")
+
+		Attribute("latest_version")
+
+		Attribute("tags")
+
+		Attribute("rating")
+
+		Attribute("last_updated_at")
+
+		Attribute("versions")
 	})
 
 })
@@ -75,7 +98,7 @@ var Resource = Type("Resource", func() {
 		Example("last_updated_at", "2020-03-26T14:09:08.19599+05:30")
 	})
 
-	Required("id", "name", "displayName", "catalog", "type", "description", "latest_version", "rating", "last_updated_at", "tags")
+	Required("id", "name", "displayName", "catalog", "type", "description", "latest_version", "tags", "rating", "last_updated_at")
 })
 
 var Versions = Type("Versions", func() {

@@ -54,6 +54,8 @@ type Detail struct {
 	Description string
 	// Latest version o resource
 	LatestVersion string
+	// Tags related to resources
+	Tags []*Tag
 	// Rating of resource
 	Rating uint
 	// Date when resource was last updated
@@ -157,6 +159,12 @@ func newDetail(vres *resourceviews.DetailView) *Detail {
 	if vres.Catalog != nil {
 		res.Catalog = transformResourceviewsCatalogViewToCatalog(vres.Catalog)
 	}
+	if vres.Tags != nil {
+		res.Tags = make([]*Tag, len(vres.Tags))
+		for i, val := range vres.Tags {
+			res.Tags[i] = transformResourceviewsTagToTag(val)
+		}
+	}
 	if vres.Versions != nil {
 		res.Versions = make([]*Versions, len(vres.Versions))
 		for i, val := range vres.Versions {
@@ -182,6 +190,12 @@ func newDetailView(res *Detail) *resourceviews.DetailView {
 	if res.Catalog != nil {
 		vres.Catalog = transformCatalogToResourceviewsCatalogView(res.Catalog)
 	}
+	if res.Tags != nil {
+		vres.Tags = make([]*resourceviews.Tag, len(res.Tags))
+		for i, val := range res.Tags {
+			vres.Tags[i] = transformTagToResourceviewsTag(val)
+		}
+	}
 	if res.Versions != nil {
 		vres.Versions = make([]*resourceviews.VersionsView, len(res.Versions))
 		for i, val := range res.Versions {
@@ -200,6 +214,20 @@ func transformResourceviewsCatalogViewToCatalog(v *resourceviews.CatalogView) *C
 	res := &Catalog{
 		ID:   *v.ID,
 		Type: *v.Type,
+	}
+
+	return res
+}
+
+// transformResourceviewsTagToTag builds a value of type *Tag from a value of
+// type *resourceviews.Tag.
+func transformResourceviewsTagToTag(v *resourceviews.Tag) *Tag {
+	if v == nil {
+		return nil
+	}
+	res := &Tag{
+		ID:   *v.ID,
+		Name: *v.Name,
 	}
 
 	return res
@@ -225,6 +253,17 @@ func transformCatalogToResourceviewsCatalogView(v *Catalog) *resourceviews.Catal
 	res := &resourceviews.CatalogView{
 		ID:   &v.ID,
 		Type: &v.Type,
+	}
+
+	return res
+}
+
+// transformTagToResourceviewsTag builds a value of type *resourceviews.Tag
+// from a value of type *Tag.
+func transformTagToResourceviewsTag(v *Tag) *resourceviews.Tag {
+	res := &resourceviews.Tag{
+		ID:   &v.ID,
+		Name: &v.Name,
 	}
 
 	return res

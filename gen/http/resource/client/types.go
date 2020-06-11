@@ -34,6 +34,8 @@ type InfoResponseBody struct {
 	Description *string `form:"description,omitempty" json:"description,omitempty" xml:"description,omitempty"`
 	// Latest version o resource
 	LatestVersion *string `form:"latest_version,omitempty" json:"latest_version,omitempty" xml:"latest_version,omitempty"`
+	// Tags related to resources
+	Tags []*Tag1 `form:"tags,omitempty" json:"tags,omitempty" xml:"tags,omitempty"`
 	// Rating of resource
 	Rating *uint `form:"rating,omitempty" json:"rating,omitempty" xml:"rating,omitempty"`
 	// Date when resource was last updated
@@ -173,6 +175,10 @@ func NewInfoDetailOK(body *InfoResponseBody) *resourceviews.DetailView {
 		LastUpdatedAt: body.LastUpdatedAt,
 	}
 	v.Catalog = unmarshalCatalogResponseBodyToResourceviewsCatalogView(body.Catalog)
+	v.Tags = make([]*resourceviews.Tag, len(body.Tags))
+	for i, val := range body.Tags {
+		v.Tags[i] = unmarshalTag1ToResourceviewsTag(val)
+	}
 	v.Versions = make([]*resourceviews.VersionsView, len(body.Versions))
 	for i, val := range body.Versions {
 		v.Versions[i] = unmarshalVersionsResponseBodyToResourceviewsVersionsView(val)
@@ -267,14 +273,14 @@ func ValidateResourceResponse(body *ResourceResponse) (err error) {
 	if body.LatestVersion == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("latest_version", "body"))
 	}
+	if body.Tags == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("tags", "body"))
+	}
 	if body.Rating == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("rating", "body"))
 	}
 	if body.LastUpdatedAt == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("last_updated_at", "body"))
-	}
-	if body.Tags == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("tags", "body"))
 	}
 	if body.Catalog != nil {
 		if err2 := ValidateCatalogResponse(body.Catalog); err2 != nil {
