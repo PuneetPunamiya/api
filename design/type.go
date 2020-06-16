@@ -4,63 +4,7 @@ import (
 	. "goa.design/goa/v3/dsl"
 )
 
-var Detail = ResultType("Detail", func() {
-	Reference(Resource)
-
-	Attributes(func() {
-
-		Attribute("id")
-
-		Attribute("name")
-
-		Attribute("displayName")
-
-		Attribute("catalog")
-
-		Attribute("type")
-
-		Attribute("description")
-
-		Attribute("latest_version")
-
-		Attribute("tags")
-
-		Attribute("rating")
-
-		Attribute("last_updated_at")
-
-		Attribute("versions", ArrayOf(Versions), "Version of resource")
-
-		Required("id", "name", "displayName", "catalog", "type", "description", "latest_version", "tags", "rating", "last_updated_at", "versions")
-	})
-
-	View("default", func() {
-		Attribute("id")
-
-		Attribute("name")
-
-		Attribute("displayName")
-
-		Attribute("catalog")
-
-		Attribute("type")
-
-		Attribute("description")
-
-		Attribute("latest_version")
-
-		Attribute("tags")
-
-		Attribute("rating")
-
-		Attribute("last_updated_at")
-
-		Attribute("versions")
-	})
-
-})
-
-var Resource = Type("Resource", func() {
+var Resource = ResultType("Resource", func() {
 
 	Attribute("id", UInt, "ID is the unique id of the resource", func() {
 		Example("id", 1)
@@ -96,6 +40,58 @@ var Resource = Type("Resource", func() {
 
 	Attribute("last_updated_at", String, "Date when resource was last updated", func() {
 		Example("last_updated_at", "2020-03-26T14:09:08.19599+05:30")
+	})
+
+	Attribute("versions", ArrayOf(Versions), "Version of resource")
+
+	View("default", func() {
+		Attribute("id")
+
+		Attribute("name")
+
+		Attribute("displayName")
+
+		Attribute("catalog")
+
+		Attribute("type")
+
+		Attribute("description")
+
+		Attribute("latest_version")
+
+		Attribute("tags")
+
+		Attribute("rating")
+
+		Attribute("last_updated_at")
+
+	})
+
+	View("extended", func() {
+		Attribute("id")
+
+		Attribute("name")
+
+		Attribute("displayName")
+
+		Attribute("catalog")
+
+		Attribute("type")
+
+		Attribute("description")
+
+		Attribute("latest_version")
+
+		Attribute("tags")
+
+		Attribute("rating")
+
+		Attribute("last_updated_at")
+
+		Attribute("versions", func() {
+			// Use view "extended" to render attribute "origin"
+			View("extended")
+		})
 	})
 
 	Required("id", "name", "displayName", "catalog", "type", "description", "latest_version", "tags", "rating", "last_updated_at")

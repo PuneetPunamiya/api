@@ -11,16 +11,16 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// Detail is the viewed result type that is projected based on a view.
-type Detail struct {
+// Resource is the viewed result type that is projected based on a view.
+type Resource struct {
 	// Type to project
-	Projected *DetailView
+	Projected *ResourceView
 	// View to render
 	View string
 }
 
-// DetailView is a type that runs validations on a projected type.
-type DetailView struct {
+// ResourceView is a type that runs validations on a projected type.
+type ResourceView struct {
 	// ID is the unique id of the resource
 	ID *uint
 	// Name of the resource
@@ -70,10 +70,22 @@ type VersionsView struct {
 }
 
 var (
-	// DetailMap is a map of attribute names in result type Detail indexed by view
-	// name.
-	DetailMap = map[string][]string{
+	// ResourceMap is a map of attribute names in result type Resource indexed by
+	// view name.
+	ResourceMap = map[string][]string{
 		"default": []string{
+			"id",
+			"name",
+			"displayName",
+			"catalog",
+			"type",
+			"description",
+			"latest_version",
+			"tags",
+			"rating",
+			"last_updated_at",
+		},
+		"extended": []string{
 			"id",
 			"name",
 			"displayName",
@@ -89,20 +101,23 @@ var (
 	}
 )
 
-// ValidateDetail runs the validations defined on the viewed result type Detail.
-func ValidateDetail(result *Detail) (err error) {
+// ValidateResource runs the validations defined on the viewed result type
+// Resource.
+func ValidateResource(result *Resource) (err error) {
 	switch result.View {
 	case "default", "":
-		err = ValidateDetailView(result.Projected)
+		err = ValidateResourceView(result.Projected)
+	case "extended":
+		err = ValidateResourceViewExtended(result.Projected)
 	default:
-		err = goa.InvalidEnumValueError("view", result.View, []interface{}{"default"})
+		err = goa.InvalidEnumValueError("view", result.View, []interface{}{"default", "extended"})
 	}
 	return
 }
 
-// ValidateDetailView runs the validations defined on DetailView using the
+// ValidateResourceView runs the validations defined on ResourceView using the
 // "default" view.
-func ValidateDetailView(result *DetailView) (err error) {
+func ValidateResourceView(result *ResourceView) (err error) {
 	if result.ID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
 	}
@@ -133,8 +148,53 @@ func ValidateDetailView(result *DetailView) (err error) {
 	if result.LastUpdatedAt == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("last_updated_at", "result"))
 	}
-	if result.Versions == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("versions", "result"))
+	if result.Catalog != nil {
+		if err2 := ValidateCatalogView(result.Catalog); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	for _, e := range result.Tags {
+		if e != nil {
+			if err2 := ValidateTag(e); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// ValidateResourceViewExtended runs the validations defined on ResourceView
+// using the "extended" view.
+func ValidateResourceViewExtended(result *ResourceView) (err error) {
+	if result.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
+	}
+	if result.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "result"))
+	}
+	if result.DisplayName == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("displayName", "result"))
+	}
+	if result.Catalog == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("catalog", "result"))
+	}
+	if result.Type == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("type", "result"))
+	}
+	if result.Description == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("description", "result"))
+	}
+	if result.LatestVersion == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("latest_version", "result"))
+	}
+	if result.Tags == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("tags", "result"))
+	}
+	if result.Rating == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("rating", "result"))
+	}
+	if result.LastUpdatedAt == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("last_updated_at", "result"))
 	}
 	if result.Catalog != nil {
 		if err2 := ValidateCatalogView(result.Catalog); err2 != nil {

@@ -17,9 +17,9 @@ import (
 // response body.
 type AllResponseBody []*ResourceResponse
 
-// InfoResponseBody is the type of the "resource" service "Info" endpoint HTTP
-// response body.
-type InfoResponseBody struct {
+// InfoResponseBodyExtended is the type of the "resource" service "Info"
+// endpoint HTTP response body.
+type InfoResponseBodyExtended struct {
 	// ID is the unique id of the resource
 	ID uint `form:"id" json:"id" xml:"id"`
 	// Name of the resource
@@ -41,7 +41,7 @@ type InfoResponseBody struct {
 	// Date when resource was last updated
 	LastUpdatedAt string `form:"last_updated_at" json:"last_updated_at" xml:"last_updated_at"`
 	// Version of resource
-	Versions []*VersionsResponseBody `form:"versions" json:"versions" xml:"versions"`
+	Versions []*VersionsResponseBody `form:"versions,omitempty" json:"versions,omitempty" xml:"versions,omitempty"`
 }
 
 // AllInternalErrorResponseBody is the type of the "resource" service "All"
@@ -102,6 +102,8 @@ type ResourceResponse struct {
 	Rating uint `form:"rating" json:"rating" xml:"rating"`
 	// Date when resource was last updated
 	LastUpdatedAt string `form:"last_updated_at" json:"last_updated_at" xml:"last_updated_at"`
+	// Version of resource
+	Versions []*VersionsResponse `form:"versions,omitempty" json:"versions,omitempty" xml:"versions,omitempty"`
 }
 
 // CatalogResponse is used to define fields on response body types.
@@ -118,6 +120,14 @@ type Tag struct {
 	ID uint `form:"id" json:"id" xml:"id"`
 	// Name of the tag
 	Name string `form:"name" json:"name" xml:"name"`
+}
+
+// VersionsResponse is used to define fields on response body types.
+type VersionsResponse struct {
+	// Version ID of the resource to be fetched
+	VersionID uint `form:"versionId" json:"versionId" xml:"versionId"`
+	// Version of the resource to be fetched
+	Version string `form:"version" json:"version" xml:"version"`
 }
 
 // CatalogResponseBody is used to define fields on response body types.
@@ -146,10 +156,10 @@ func NewAllResponseBody(res []*resource.Resource) AllResponseBody {
 	return body
 }
 
-// NewInfoResponseBody builds the HTTP response body from the result of the
-// "Info" endpoint of the "resource" service.
-func NewInfoResponseBody(res *resourceviews.DetailView) *InfoResponseBody {
-	body := &InfoResponseBody{
+// NewInfoResponseBodyExtended builds the HTTP response body from the result of
+// the "Info" endpoint of the "resource" service.
+func NewInfoResponseBodyExtended(res *resourceviews.ResourceView) *InfoResponseBodyExtended {
+	body := &InfoResponseBodyExtended{
 		ID:            *res.ID,
 		Name:          *res.Name,
 		DisplayName:   *res.DisplayName,

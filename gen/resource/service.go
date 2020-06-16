@@ -19,7 +19,7 @@ type Service interface {
 	// Get all Resources
 	All(context.Context) (res []*Resource, err error)
 	// Get one Resource info
-	Info(context.Context, *InfoPayload) (res *Detail, err error)
+	Info(context.Context, *InfoPayload) (res *Resource, err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -38,8 +38,8 @@ type InfoPayload struct {
 	ResourceID uint
 }
 
-// Detail is the result type of the resource service Info method.
-type Detail struct {
+// Resource is the result type of the resource service Info method.
+type Resource struct {
 	// ID is the unique id of the resource
 	ID uint
 	// Name of the resource
@@ -62,29 +62,6 @@ type Detail struct {
 	LastUpdatedAt string
 	// Version of resource
 	Versions []*Versions
-}
-
-type Resource struct {
-	// ID is the unique id of the resource
-	ID uint
-	// Name of the resource
-	Name string
-	// Display name of the resource
-	DisplayName string
-	// Type of catalog where resource belongs
-	Catalog *Catalog
-	// Type of resource
-	Type string
-	// Description of resource
-	Description string
-	// Latest version o resource
-	LatestVersion string
-	// Tags related to resources
-	Tags []*Tag
-	// Rating of resource
-	Rating uint
-	// Date when resource was last updated
-	LastUpdatedAt string
 }
 
 type Catalog struct {
@@ -117,21 +94,77 @@ func MakeInternalError(err error) *goa.ServiceError {
 	}
 }
 
-// NewDetail initializes result type Detail from viewed result type Detail.
-func NewDetail(vres *resourceviews.Detail) *Detail {
-	return newDetail(vres.Projected)
+// NewResource initializes result type Resource from viewed result type
+// Resource.
+func NewResource(vres *resourceviews.Resource) *Resource {
+	var res *Resource
+	switch vres.View {
+	case "default", "":
+		res = newResource(vres.Projected)
+	case "extended":
+		res = newResourceExtended(vres.Projected)
+	}
+	return res
 }
 
-// NewViewedDetail initializes viewed result type Detail from result type
-// Detail using the given view.
-func NewViewedDetail(res *Detail, view string) *resourceviews.Detail {
-	p := newDetailView(res)
-	return &resourceviews.Detail{Projected: p, View: "default"}
+// NewViewedResource initializes viewed result type Resource from result type
+// Resource using the given view.
+func NewViewedResource(res *Resource, view string) *resourceviews.Resource {
+	var vres *resourceviews.Resource
+	switch view {
+	case "default", "":
+		p := newResourceView(res)
+		vres = &resourceviews.Resource{Projected: p, View: "default"}
+	case "extended":
+		p := newResourceViewExtended(res)
+		vres = &resourceviews.Resource{Projected: p, View: "extended"}
+	}
+	return vres
 }
 
-// newDetail converts projected type Detail to service type Detail.
-func newDetail(vres *resourceviews.DetailView) *Detail {
-	res := &Detail{}
+// newResource converts projected type Resource to service type Resource.
+func newResource(vres *resourceviews.ResourceView) *Resource {
+	res := &Resource{}
+	if vres.ID != nil {
+		res.ID = *vres.ID
+	}
+	if vres.Name != nil {
+		res.Name = *vres.Name
+	}
+	if vres.DisplayName != nil {
+		res.DisplayName = *vres.DisplayName
+	}
+	if vres.Type != nil {
+		res.Type = *vres.Type
+	}
+	if vres.Description != nil {
+		res.Description = *vres.Description
+	}
+	if vres.LatestVersion != nil {
+		res.LatestVersion = *vres.LatestVersion
+	}
+	if vres.Rating != nil {
+		res.Rating = *vres.Rating
+	}
+	if vres.LastUpdatedAt != nil {
+		res.LastUpdatedAt = *vres.LastUpdatedAt
+	}
+	if vres.Catalog != nil {
+		res.Catalog = transformResourceviewsCatalogViewToCatalog(vres.Catalog)
+	}
+	if vres.Tags != nil {
+		res.Tags = make([]*Tag, len(vres.Tags))
+		for i, val := range vres.Tags {
+			res.Tags[i] = transformResourceviewsTagToTag(val)
+		}
+	}
+	return res
+}
+
+// newResourceExtended converts projected type Resource to service type
+// Resource.
+func newResourceExtended(vres *resourceviews.ResourceView) *Resource {
+	res := &Resource{}
 	if vres.ID != nil {
 		res.ID = *vres.ID
 	}
@@ -174,10 +207,35 @@ func newDetail(vres *resourceviews.DetailView) *Detail {
 	return res
 }
 
-// newDetailView projects result type Detail to projected type DetailView using
-// the "default" view.
-func newDetailView(res *Detail) *resourceviews.DetailView {
-	vres := &resourceviews.DetailView{
+// newResourceView projects result type Resource to projected type ResourceView
+// using the "default" view.
+func newResourceView(res *Resource) *resourceviews.ResourceView {
+	vres := &resourceviews.ResourceView{
+		ID:            &res.ID,
+		Name:          &res.Name,
+		DisplayName:   &res.DisplayName,
+		Type:          &res.Type,
+		Description:   &res.Description,
+		LatestVersion: &res.LatestVersion,
+		Rating:        &res.Rating,
+		LastUpdatedAt: &res.LastUpdatedAt,
+	}
+	if res.Catalog != nil {
+		vres.Catalog = transformCatalogToResourceviewsCatalogView(res.Catalog)
+	}
+	if res.Tags != nil {
+		vres.Tags = make([]*resourceviews.Tag, len(res.Tags))
+		for i, val := range res.Tags {
+			vres.Tags[i] = transformTagToResourceviewsTag(val)
+		}
+	}
+	return vres
+}
+
+// newResourceViewExtended projects result type Resource to projected type
+// ResourceView using the "extended" view.
+func newResourceViewExtended(res *Resource) *resourceviews.ResourceView {
+	vres := &resourceviews.ResourceView{
 		ID:            &res.ID,
 		Name:          &res.Name,
 		DisplayName:   &res.DisplayName,
@@ -272,6 +330,9 @@ func transformTagToResourceviewsTag(v *Tag) *resourceviews.Tag {
 // transformVersionsToResourceviewsVersionsView builds a value of type
 // *resourceviews.VersionsView from a value of type *Versions.
 func transformVersionsToResourceviewsVersionsView(v *Versions) *resourceviews.VersionsView {
+	if v == nil {
+		return nil
+	}
 	res := &resourceviews.VersionsView{
 		VersionID: &v.VersionID,
 		Version:   &v.Version,

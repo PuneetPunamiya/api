@@ -50,7 +50,7 @@ func NewInfoEndpoint(s Service) goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		vres := NewViewedDetail(res, "default")
+		vres := NewViewedResource(res, "extended")
 		return vres, nil
 	}
 }

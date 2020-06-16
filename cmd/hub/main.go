@@ -35,7 +35,6 @@ func main() {
 	{
 		logger = log.New(os.Stderr, "[hub] ", log.Ltime)
 	}
-
 	var (
 		db *gorm.DB
 	)

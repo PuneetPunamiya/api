@@ -153,13 +153,13 @@ func DecodeInfoResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 			if err != nil {
 				return nil, goahttp.ErrDecodingError("resource", "Info", err)
 			}
-			p := NewInfoDetailOK(&body)
-			view := "default"
-			vres := &resourceviews.Detail{Projected: p, View: view}
-			if err = resourceviews.ValidateDetail(vres); err != nil {
+			p := NewInfoResourceOK(&body)
+			view := "extended"
+			vres := &resourceviews.Resource{Projected: p, View: view}
+			if err = resourceviews.ValidateResource(vres); err != nil {
 				return nil, goahttp.ErrValidationError("resource", "Info", err)
 			}
-			res := resource.NewDetail(vres)
+			res := resource.NewResource(vres)
 			return res, nil
 		case http.StatusInternalServerError:
 			var (
@@ -200,6 +200,12 @@ func unmarshalResourceResponseToResourceResource(v *ResourceResponse) *resource.
 	for i, val := range v.Tags {
 		res.Tags[i] = unmarshalTagToResourceTag(val)
 	}
+	if v.Versions != nil {
+		res.Versions = make([]*resource.Versions, len(v.Versions))
+		for i, val := range v.Versions {
+			res.Versions[i] = unmarshalVersionsResponseToResourceVersions(val)
+		}
+	}
 
 	return res
 }
@@ -221,6 +227,20 @@ func unmarshalTagToResourceTag(v *Tag) *resource.Tag {
 	res := &resource.Tag{
 		ID:   *v.ID,
 		Name: *v.Name,
+	}
+
+	return res
+}
+
+// unmarshalVersionsResponseToResourceVersions builds a value of type
+// *resource.Versions from a value of type *VersionsResponse.
+func unmarshalVersionsResponseToResourceVersions(v *VersionsResponse) *resource.Versions {
+	if v == nil {
+		return nil
+	}
+	res := &resource.Versions{
+		VersionID: *v.VersionID,
+		Version:   *v.Version,
 	}
 
 	return res
@@ -251,6 +271,9 @@ func unmarshalTag1ToResourceviewsTag(v *Tag1) *resourceviews.Tag {
 // unmarshalVersionsResponseBodyToResourceviewsVersionsView builds a value of
 // type *resourceviews.VersionsView from a value of type *VersionsResponseBody.
 func unmarshalVersionsResponseBodyToResourceviewsVersionsView(v *VersionsResponseBody) *resourceviews.VersionsView {
+	if v == nil {
+		return nil
+	}
 	res := &resourceviews.VersionsView{
 		VersionID: v.VersionID,
 		Version:   v.Version,

@@ -30,7 +30,7 @@ paths:
         "200":
           description: OK response.
           schema:
-            $ref: '#/definitions/ResourceInfoResponseBody'
+            $ref: '#/definitions/ResourceInfoResponseBodyExtended'
         "500":
           description: Internal Server Error response.
           schema:
@@ -126,12 +126,12 @@ definitions:
         example: true
     description: All_internal-error_Response_Body result type (default view)
     example:
-      fault: true
+      fault: false
       id: 123abc
       message: parameter 'p' must be an integer
       name: bad_request
-      temporary: false
-      timeout: true
+      temporary: true
+      timeout: false
     required:
     - name
     - id
@@ -166,7 +166,7 @@ definitions:
       timeout:
         type: boolean
         description: Is the error a timeout?
-        example: true
+        example: false
     description: Info_internal-error_Response_Body result type (default view)
     example:
       fault: true
@@ -182,8 +182,8 @@ definitions:
     - temporary
     - timeout
     - fault
-  ResourceInfoResponseBody:
-    title: 'Mediatype identifier: detail; view=default'
+  ResourceInfoResponseBodyExtended:
+    title: 'Mediatype identifier: resource; view=extended'
     type: object
     properties:
       catalog:
@@ -228,6 +228,10 @@ definitions:
           name: notification
         - id: 1
           name: notification
+        - id: 1
+          name: notification
+        - id: 1
+          name: notification
       type:
         type: string
         description: Type of resource
@@ -242,9 +246,7 @@ definitions:
           versionId: 1
         - version: 0,1
           versionId: 1
-        - version: 0,1
-          versionId: 1
-    description: InfoResponseBody result type (default view)
+    description: InfoResponseBody result type (extended view) (default view)
     example:
       catalog:
         id: 1
@@ -257,10 +259,6 @@ definitions:
       name: golang
       rating: 5
       tags:
-      - id: 1
-        name: notification
-      - id: 1
-        name: notification
       - id: 1
         name: notification
       - id: 1
@@ -284,9 +282,8 @@ definitions:
     - tags
     - rating
     - last_updated_at
-    - versions
   ResourceResponse:
-    title: ResourceResponse
+    title: 'Mediatype identifier: resource; view=default'
     type: object
     properties:
       catalog:
@@ -337,6 +334,7 @@ definitions:
         type: string
         description: Type of resource
         example: task
+    description: ResourceResponse result type (default view)
     example:
       catalog:
         id: 1

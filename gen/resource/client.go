@@ -38,11 +38,11 @@ func (c *Client) All(ctx context.Context) (res []*Resource, err error) {
 }
 
 // Info calls the "Info" endpoint of the "resource" service.
-func (c *Client) Info(ctx context.Context, p *InfoPayload) (res *Detail, err error) {
+func (c *Client) Info(ctx context.Context, p *InfoPayload) (res *Resource, err error) {
 	var ires interface{}
 	ires, err = c.InfoEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
-	return ires.(*Detail), nil
+	return ires.(*Resource), nil
 }

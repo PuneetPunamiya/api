@@ -28,27 +28,11 @@ var _ = Service("resource", func() {
 			Attribute("resourceId", UInt, "ID of resource to be shown")
 			Required("resourceId")
 		})
-		Result(Detail)
+		Result(Resource, func() { View("extended") })
 		HTTP(func() {
 			GET("/resource/{resourceId}")
 			Response(StatusOK)
 			Response("internal-error", StatusInternalServerError)
 		})
 	})
-
-	// // Method to get a resource info
-	// Method("Infotkn", func() {
-	// 	Description("Get one Resource info")
-	// 	Payload(func() {
-	// 		Attribute("type", String, "Type of Resource")
-	// 		Attribute("name", String, "Name of Resource")
-	// 		Required("type", "name")
-	// 	})
-	// 	Result(Detail)
-	// 	HTTP(func() {
-	// 		GET("/resource/{type}/{name}")
-	// 		Response(StatusOK)
-	// 		Response("internal-error", StatusInternalServerError)
-	// 	})
-	// })
 })

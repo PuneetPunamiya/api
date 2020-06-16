@@ -166,6 +166,6 @@ Get one Resource info
     -resource-id UINT: ID of resource to be shown
 
 Example:
-    `+os.Args[0]+` resource info --resource-id 14330745181113835978
+    `+os.Args[0]+` resource info --resource-id 16563047716795628258
 `, os.Args[0])
 }

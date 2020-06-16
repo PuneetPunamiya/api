@@ -62,9 +62,9 @@ func EncodeAllError(encoder func(context.Context, http.ResponseWriter) goahttp.E
 // Info endpoint.
 func EncodeInfoResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
-		res := v.(*resourceviews.Detail)
+		res := v.(*resourceviews.Resource)
 		enc := encoder(ctx, w)
-		body := NewInfoResponseBody(res.Projected)
+		body := NewInfoResponseBodyExtended(res.Projected)
 		w.WriteHeader(http.StatusOK)
 		return enc.Encode(body)
 	}
@@ -147,6 +147,12 @@ func marshalResourceResourceToResourceResponse(v *resource.Resource) *ResourceRe
 			res.Tags[i] = marshalResourceTagToTag(val)
 		}
 	}
+	if v.Versions != nil {
+		res.Versions = make([]*VersionsResponse, len(v.Versions))
+		for i, val := range v.Versions {
+			res.Versions[i] = marshalResourceVersionsToVersionsResponse(val)
+		}
+	}
 
 	return res
 }
@@ -168,6 +174,20 @@ func marshalResourceTagToTag(v *resource.Tag) *Tag {
 	res := &Tag{
 		ID:   v.ID,
 		Name: v.Name,
+	}
+
+	return res
+}
+
+// marshalResourceVersionsToVersionsResponse builds a value of type
+// *VersionsResponse from a value of type *resource.Versions.
+func marshalResourceVersionsToVersionsResponse(v *resource.Versions) *VersionsResponse {
+	if v == nil {
+		return nil
+	}
+	res := &VersionsResponse{
+		VersionID: v.VersionID,
+		Version:   v.Version,
 	}
 
 	return res
@@ -198,6 +218,9 @@ func marshalResourceviewsTagToTag1(v *resourceviews.Tag) *Tag1 {
 // marshalResourceviewsVersionsViewToVersionsResponseBody builds a value of
 // type *VersionsResponseBody from a value of type *resourceviews.VersionsView.
 func marshalResourceviewsVersionsViewToVersionsResponseBody(v *resourceviews.VersionsView) *VersionsResponseBody {
+	if v == nil {
+		return nil
+	}
 	res := &VersionsResponseBody{
 		VersionID: *v.VersionID,
 		Version:   *v.Version,

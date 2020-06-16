@@ -102,6 +102,8 @@ type ResourceResponse struct {
 	Rating *uint `form:"rating,omitempty" json:"rating,omitempty" xml:"rating,omitempty"`
 	// Date when resource was last updated
 	LastUpdatedAt *string `form:"last_updated_at,omitempty" json:"last_updated_at,omitempty" xml:"last_updated_at,omitempty"`
+	// Version of resource
+	Versions []*VersionsResponse `form:"versions,omitempty" json:"versions,omitempty" xml:"versions,omitempty"`
 }
 
 // CatalogResponse is used to define fields on response body types.
@@ -118,6 +120,14 @@ type Tag struct {
 	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 	// Name of the tag
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+}
+
+// VersionsResponse is used to define fields on response body types.
+type VersionsResponse struct {
+	// Version ID of the resource to be fetched
+	VersionID *uint `form:"versionId,omitempty" json:"versionId,omitempty" xml:"versionId,omitempty"`
+	// Version of the resource to be fetched
+	Version *string `form:"version,omitempty" json:"version,omitempty" xml:"version,omitempty"`
 }
 
 // CatalogResponseBody is used to define fields on response body types.
@@ -161,10 +171,10 @@ func NewAllInternalError(body *AllInternalErrorResponseBody) *goa.ServiceError {
 	return v
 }
 
-// NewInfoDetailOK builds a "resource" service "Info" endpoint result from a
+// NewInfoResourceOK builds a "resource" service "Info" endpoint result from a
 // HTTP "OK" response.
-func NewInfoDetailOK(body *InfoResponseBody) *resourceviews.DetailView {
-	v := &resourceviews.DetailView{
+func NewInfoResourceOK(body *InfoResponseBody) *resourceviews.ResourceView {
+	v := &resourceviews.ResourceView{
 		ID:            body.ID,
 		Name:          body.Name,
 		DisplayName:   body.DisplayName,
@@ -179,9 +189,11 @@ func NewInfoDetailOK(body *InfoResponseBody) *resourceviews.DetailView {
 	for i, val := range body.Tags {
 		v.Tags[i] = unmarshalTag1ToResourceviewsTag(val)
 	}
-	v.Versions = make([]*resourceviews.VersionsView, len(body.Versions))
-	for i, val := range body.Versions {
-		v.Versions[i] = unmarshalVersionsResponseBodyToResourceviewsVersionsView(val)
+	if body.Versions != nil {
+		v.Versions = make([]*resourceviews.VersionsView, len(body.Versions))
+		for i, val := range body.Versions {
+			v.Versions[i] = unmarshalVersionsResponseBodyToResourceviewsVersionsView(val)
+		}
 	}
 
 	return v
@@ -294,6 +306,13 @@ func ValidateResourceResponse(body *ResourceResponse) (err error) {
 			}
 		}
 	}
+	for _, e := range body.Versions {
+		if e != nil {
+			if err2 := ValidateVersionsResponse(e); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
 	return
 }
 
@@ -315,6 +334,17 @@ func ValidateTag(body *Tag) (err error) {
 	}
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	return
+}
+
+// ValidateVersionsResponse runs the validations defined on VersionsResponse
+func ValidateVersionsResponse(body *VersionsResponse) (err error) {
+	if body.VersionID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("versionId", "body"))
+	}
+	if body.Version == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("version", "body"))
 	}
 	return
 }
