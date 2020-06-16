@@ -103,7 +103,7 @@ definitions:
       fault:
         type: boolean
         description: Is the error a server-side fault?
-        example: false
+        example: true
       id:
         type: string
         description: ID is a unique identifier for this particular occurrence of the problem.
@@ -119,18 +119,18 @@ definitions:
       temporary:
         type: boolean
         description: Is the error temporary?
-        example: false
+        example: true
       timeout:
         type: boolean
         description: Is the error a timeout?
-        example: true
+        example: false
     description: All_internal-error_Response_Body result type (default view)
     example:
-      fault: false
+      fault: true
       id: 123abc
       message: parameter 'p' must be an integer
       name: bad_request
-      temporary: true
+      temporary: false
       timeout: false
     required:
     - name
@@ -146,7 +146,7 @@ definitions:
       fault:
         type: boolean
         description: Is the error a server-side fault?
-        example: true
+        example: false
       id:
         type: string
         description: ID is a unique identifier for this particular occurrence of the problem.
@@ -166,7 +166,7 @@ definitions:
       timeout:
         type: boolean
         description: Is the error a timeout?
-        example: false
+        example: true
     description: Info_internal-error_Response_Body result type (default view)
     example:
       fault: true
@@ -228,24 +228,10 @@ definitions:
           name: notification
         - id: 1
           name: notification
-        - id: 1
-          name: notification
-        - id: 1
-          name: notification
       type:
         type: string
         description: Type of resource
         example: task
-      versions:
-        type: array
-        items:
-          $ref: '#/definitions/VersionsResponseBody'
-        description: Version of resource
-        example:
-        - version: 0,1
-          versionId: 1
-        - version: 0,1
-          versionId: 1
     description: InfoResponseBody result type (extended view) (default view)
     example:
       catalog:
@@ -264,13 +250,6 @@ definitions:
       - id: 1
         name: notification
       type: task
-      versions:
-      - version: 0,1
-        versionId: 1
-      - version: 0,1
-        versionId: 1
-      - version: 0,1
-        versionId: 1
     required:
     - id
     - name
@@ -334,6 +313,18 @@ definitions:
         type: string
         description: Type of resource
         example: task
+      versions:
+        type: array
+        items:
+          $ref: '#/definitions/VersionsResponse'
+        description: Version of resource
+        example:
+        - version: 0,1
+          versionId: 1
+        - version: 0,1
+          versionId: 1
+        - version: 0,1
+          versionId: 1
     description: ResourceResponse result type (default view)
     example:
       catalog:
@@ -356,6 +347,13 @@ definitions:
       - id: 1
         name: notification
       type: task
+      versions:
+      - version: 0,1
+        versionId: 1
+      - version: 0,1
+        versionId: 1
+      - version: 0,1
+        versionId: 1
     required:
     - id
     - name
@@ -367,6 +365,7 @@ definitions:
     - tags
     - rating
     - last_updated_at
+    - versions
   TagResponse:
     title: TagResponse
     type: object
@@ -405,8 +404,8 @@ definitions:
     required:
     - id
     - name
-  VersionsResponseBody:
-    title: VersionsResponseBody
+  VersionsResponse:
+    title: VersionsResponse
     type: object
     properties:
       version:

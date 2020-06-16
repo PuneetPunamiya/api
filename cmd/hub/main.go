@@ -11,7 +11,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/jinzhu/gorm"
 	hub "github.com/tektoncd/hub/api"
 	resource "github.com/tektoncd/hub/api/gen/resource"
 )
@@ -34,26 +33,6 @@ func main() {
 	)
 	{
 		logger = log.New(os.Stderr, "[hub] ", log.Ltime)
-	}
-	var (
-		db *gorm.DB
-	)
-	{
-		var err error
-		db, err = gorm.Open("postgres", "user=postgres password=postgres dbname=hub sslmode=disable")
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println("Successful Db Connection")
-		defer db.Close()
-
-		db.AutoMigrate(
-			hub.Resource{},
-			hub.Category{},
-			hub.Tag{},
-			hub.Catalog{},
-			hub.ResourceVersion{},
-		)
 	}
 
 	// Initialize the services.

@@ -198,13 +198,11 @@ func unmarshalResourceResponseToResourceResource(v *ResourceResponse) *resource.
 	res.Catalog = unmarshalCatalogResponseToResourceCatalog(v.Catalog)
 	res.Tags = make([]*resource.Tag, len(v.Tags))
 	for i, val := range v.Tags {
-		res.Tags[i] = unmarshalTagToResourceTag(val)
+		res.Tags[i] = unmarshalTagResponseToResourceTag(val)
 	}
-	if v.Versions != nil {
-		res.Versions = make([]*resource.Versions, len(v.Versions))
-		for i, val := range v.Versions {
-			res.Versions[i] = unmarshalVersionsResponseToResourceVersions(val)
-		}
+	res.Versions = make([]*resource.Versions, len(v.Versions))
+	for i, val := range v.Versions {
+		res.Versions[i] = unmarshalVersionsResponseToResourceVersions(val)
 	}
 
 	return res
@@ -221,9 +219,9 @@ func unmarshalCatalogResponseToResourceCatalog(v *CatalogResponse) *resource.Cat
 	return res
 }
 
-// unmarshalTagToResourceTag builds a value of type *resource.Tag from a value
-// of type *Tag.
-func unmarshalTagToResourceTag(v *Tag) *resource.Tag {
+// unmarshalTagResponseToResourceTag builds a value of type *resource.Tag from
+// a value of type *TagResponse.
+func unmarshalTagResponseToResourceTag(v *TagResponse) *resource.Tag {
 	res := &resource.Tag{
 		ID:   *v.ID,
 		Name: *v.Name,
@@ -235,9 +233,6 @@ func unmarshalTagToResourceTag(v *Tag) *resource.Tag {
 // unmarshalVersionsResponseToResourceVersions builds a value of type
 // *resource.Versions from a value of type *VersionsResponse.
 func unmarshalVersionsResponseToResourceVersions(v *VersionsResponse) *resource.Versions {
-	if v == nil {
-		return nil
-	}
 	res := &resource.Versions{
 		VersionID: *v.VersionID,
 		Version:   *v.Version,
@@ -257,10 +252,10 @@ func unmarshalCatalogResponseBodyToResourceviewsCatalogView(v *CatalogResponseBo
 	return res
 }
 
-// unmarshalTag1ToResourceviewsTag builds a value of type *resourceviews.Tag
-// from a value of type *Tag1.
-func unmarshalTag1ToResourceviewsTag(v *Tag1) *resourceviews.Tag {
-	res := &resourceviews.Tag{
+// unmarshalTagResponseBodyToResourceviewsTagView builds a value of type
+// *resourceviews.TagView from a value of type *TagResponseBody.
+func unmarshalTagResponseBodyToResourceviewsTagView(v *TagResponseBody) *resourceviews.TagView {
+	res := &resourceviews.TagView{
 		ID:   v.ID,
 		Name: v.Name,
 	}
@@ -271,9 +266,6 @@ func unmarshalTag1ToResourceviewsTag(v *Tag1) *resourceviews.Tag {
 // unmarshalVersionsResponseBodyToResourceviewsVersionsView builds a value of
 // type *resourceviews.VersionsView from a value of type *VersionsResponseBody.
 func unmarshalVersionsResponseBodyToResourceviewsVersionsView(v *VersionsResponseBody) *resourceviews.VersionsView {
-	if v == nil {
-		return nil
-	}
 	res := &resourceviews.VersionsView{
 		VersionID: v.VersionID,
 		Version:   v.Version,

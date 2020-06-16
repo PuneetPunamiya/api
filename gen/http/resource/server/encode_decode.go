@@ -142,9 +142,9 @@ func marshalResourceResourceToResourceResponse(v *resource.Resource) *ResourceRe
 		res.Catalog = marshalResourceCatalogToCatalogResponse(v.Catalog)
 	}
 	if v.Tags != nil {
-		res.Tags = make([]*Tag, len(v.Tags))
+		res.Tags = make([]*TagResponse, len(v.Tags))
 		for i, val := range v.Tags {
-			res.Tags[i] = marshalResourceTagToTag(val)
+			res.Tags[i] = marshalResourceTagToTagResponse(val)
 		}
 	}
 	if v.Versions != nil {
@@ -168,10 +168,10 @@ func marshalResourceCatalogToCatalogResponse(v *resource.Catalog) *CatalogRespon
 	return res
 }
 
-// marshalResourceTagToTag builds a value of type *Tag from a value of type
-// *resource.Tag.
-func marshalResourceTagToTag(v *resource.Tag) *Tag {
-	res := &Tag{
+// marshalResourceTagToTagResponse builds a value of type *TagResponse from a
+// value of type *resource.Tag.
+func marshalResourceTagToTagResponse(v *resource.Tag) *TagResponse {
+	res := &TagResponse{
 		ID:   v.ID,
 		Name: v.Name,
 	}
@@ -182,9 +182,6 @@ func marshalResourceTagToTag(v *resource.Tag) *Tag {
 // marshalResourceVersionsToVersionsResponse builds a value of type
 // *VersionsResponse from a value of type *resource.Versions.
 func marshalResourceVersionsToVersionsResponse(v *resource.Versions) *VersionsResponse {
-	if v == nil {
-		return nil
-	}
 	res := &VersionsResponse{
 		VersionID: v.VersionID,
 		Version:   v.Version,
@@ -204,26 +201,12 @@ func marshalResourceviewsCatalogViewToCatalogResponseBody(v *resourceviews.Catal
 	return res
 }
 
-// marshalResourceviewsTagToTag1 builds a value of type *Tag1 from a value of
-// type *resourceviews.Tag.
-func marshalResourceviewsTagToTag1(v *resourceviews.Tag) *Tag1 {
-	res := &Tag1{
+// marshalResourceviewsTagViewToTagResponseBody builds a value of type
+// *TagResponseBody from a value of type *resourceviews.TagView.
+func marshalResourceviewsTagViewToTagResponseBody(v *resourceviews.TagView) *TagResponseBody {
+	res := &TagResponseBody{
 		ID:   *v.ID,
 		Name: *v.Name,
-	}
-
-	return res
-}
-
-// marshalResourceviewsVersionsViewToVersionsResponseBody builds a value of
-// type *VersionsResponseBody from a value of type *resourceviews.VersionsView.
-func marshalResourceviewsVersionsViewToVersionsResponseBody(v *resourceviews.VersionsView) *VersionsResponseBody {
-	if v == nil {
-		return nil
-	}
-	res := &VersionsResponseBody{
-		VersionID: *v.VersionID,
-		Version:   *v.Version,
 	}
 
 	return res

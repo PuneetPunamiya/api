@@ -36,7 +36,7 @@ type ResourceView struct {
 	// Latest version o resource
 	LatestVersion *string
 	// Tags related to resources
-	Tags []*Tag
+	Tags []*TagView
 	// Rating of resource
 	Rating *uint
 	// Date when resource was last updated
@@ -53,8 +53,8 @@ type CatalogView struct {
 	Type *string
 }
 
-// Tag is a type that runs validations on a projected type.
-type Tag struct {
+// TagView is a type that runs validations on a projected type.
+type TagView struct {
 	// ID is the unique id of the tag
 	ID *uint
 	// Name of the tag
@@ -84,6 +84,7 @@ var (
 			"tags",
 			"rating",
 			"last_updated_at",
+			"versions",
 		},
 		"extended": []string{
 			"id",
@@ -96,7 +97,6 @@ var (
 			"tags",
 			"rating",
 			"last_updated_at",
-			"versions",
 		},
 	}
 )
@@ -148,6 +148,9 @@ func ValidateResourceView(result *ResourceView) (err error) {
 	if result.LastUpdatedAt == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("last_updated_at", "result"))
 	}
+	if result.Versions == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("versions", "result"))
+	}
 	if result.Catalog != nil {
 		if err2 := ValidateCatalogView(result.Catalog); err2 != nil {
 			err = goa.MergeErrors(err, err2)
@@ -155,7 +158,14 @@ func ValidateResourceView(result *ResourceView) (err error) {
 	}
 	for _, e := range result.Tags {
 		if e != nil {
-			if err2 := ValidateTag(e); err2 != nil {
+			if err2 := ValidateTagView(e); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	for _, e := range result.Versions {
+		if e != nil {
+			if err2 := ValidateVersionsView(e); err2 != nil {
 				err = goa.MergeErrors(err, err2)
 			}
 		}
@@ -203,14 +213,7 @@ func ValidateResourceViewExtended(result *ResourceView) (err error) {
 	}
 	for _, e := range result.Tags {
 		if e != nil {
-			if err2 := ValidateTag(e); err2 != nil {
-				err = goa.MergeErrors(err, err2)
-			}
-		}
-	}
-	for _, e := range result.Versions {
-		if e != nil {
-			if err2 := ValidateVersionsView(e); err2 != nil {
+			if err2 := ValidateTagView(e); err2 != nil {
 				err = goa.MergeErrors(err, err2)
 			}
 		}
@@ -229,8 +232,8 @@ func ValidateCatalogView(result *CatalogView) (err error) {
 	return
 }
 
-// ValidateTag runs the validations defined on Tag.
-func ValidateTag(result *Tag) (err error) {
+// ValidateTagView runs the validations defined on TagView.
+func ValidateTagView(result *TagView) (err error) {
 	if result.ID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
 	}

@@ -46,55 +46,32 @@ var Resource = ResultType("Resource", func() {
 
 	View("default", func() {
 		Attribute("id")
-
 		Attribute("name")
-
 		Attribute("displayName")
-
 		Attribute("catalog")
-
 		Attribute("type")
-
 		Attribute("description")
-
 		Attribute("latest_version")
-
 		Attribute("tags")
-
 		Attribute("rating")
-
 		Attribute("last_updated_at")
-
+		Attribute("versions")
 	})
 
 	View("extended", func() {
 		Attribute("id")
-
 		Attribute("name")
-
 		Attribute("displayName")
-
 		Attribute("catalog")
-
 		Attribute("type")
-
 		Attribute("description")
-
 		Attribute("latest_version")
-
 		Attribute("tags")
-
 		Attribute("rating")
-
 		Attribute("last_updated_at")
-
-		Attribute("versions", func() {
-			// Use view "extended" to render attribute "origin"
-			View("extended")
-		})
 	})
 
-	Required("id", "name", "displayName", "catalog", "type", "description", "latest_version", "tags", "rating", "last_updated_at")
+	Required("id", "name", "displayName", "catalog", "type", "description", "latest_version", "tags", "rating", "last_updated_at", "versions")
 })
 
 var Versions = Type("Versions", func() {
@@ -119,8 +96,7 @@ var Catalog = Type("Catalog", func() {
 	Required("id", "type")
 })
 
-var ResourceTag = Type("ResourceTag", func() {
-	TypeName("Tag")
+var ResourceTag = Type("Tag", func() {
 	Attribute("id", UInt, "ID is the unique id of the tag", func() {
 		Example("id", 1)
 	})

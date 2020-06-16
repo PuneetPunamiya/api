@@ -35,7 +35,7 @@ type InfoResponseBody struct {
 	// Latest version o resource
 	LatestVersion *string `form:"latest_version,omitempty" json:"latest_version,omitempty" xml:"latest_version,omitempty"`
 	// Tags related to resources
-	Tags []*Tag1 `form:"tags,omitempty" json:"tags,omitempty" xml:"tags,omitempty"`
+	Tags []*TagResponseBody `form:"tags,omitempty" json:"tags,omitempty" xml:"tags,omitempty"`
 	// Rating of resource
 	Rating *uint `form:"rating,omitempty" json:"rating,omitempty" xml:"rating,omitempty"`
 	// Date when resource was last updated
@@ -97,7 +97,7 @@ type ResourceResponse struct {
 	// Latest version o resource
 	LatestVersion *string `form:"latest_version,omitempty" json:"latest_version,omitempty" xml:"latest_version,omitempty"`
 	// Tags related to resources
-	Tags []*Tag `form:"tags,omitempty" json:"tags,omitempty" xml:"tags,omitempty"`
+	Tags []*TagResponse `form:"tags,omitempty" json:"tags,omitempty" xml:"tags,omitempty"`
 	// Rating of resource
 	Rating *uint `form:"rating,omitempty" json:"rating,omitempty" xml:"rating,omitempty"`
 	// Date when resource was last updated
@@ -114,8 +114,8 @@ type CatalogResponse struct {
 	Type *string `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
 }
 
-// Tag is used to define fields on response body types.
-type Tag struct {
+// TagResponse is used to define fields on response body types.
+type TagResponse struct {
 	// ID is the unique id of the tag
 	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 	// Name of the tag
@@ -136,6 +136,14 @@ type CatalogResponseBody struct {
 	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 	// Type of support tier
 	Type *string `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
+}
+
+// TagResponseBody is used to define fields on response body types.
+type TagResponseBody struct {
+	// ID is the unique id of the tag
+	ID *uint `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Name of the tag
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 }
 
 // VersionsResponseBody is used to define fields on response body types.
@@ -185,15 +193,13 @@ func NewInfoResourceOK(body *InfoResponseBody) *resourceviews.ResourceView {
 		LastUpdatedAt: body.LastUpdatedAt,
 	}
 	v.Catalog = unmarshalCatalogResponseBodyToResourceviewsCatalogView(body.Catalog)
-	v.Tags = make([]*resourceviews.Tag, len(body.Tags))
+	v.Tags = make([]*resourceviews.TagView, len(body.Tags))
 	for i, val := range body.Tags {
-		v.Tags[i] = unmarshalTag1ToResourceviewsTag(val)
+		v.Tags[i] = unmarshalTagResponseBodyToResourceviewsTagView(val)
 	}
-	if body.Versions != nil {
-		v.Versions = make([]*resourceviews.VersionsView, len(body.Versions))
-		for i, val := range body.Versions {
-			v.Versions[i] = unmarshalVersionsResponseBodyToResourceviewsVersionsView(val)
-		}
+	v.Versions = make([]*resourceviews.VersionsView, len(body.Versions))
+	for i, val := range body.Versions {
+		v.Versions[i] = unmarshalVersionsResponseBodyToResourceviewsVersionsView(val)
 	}
 
 	return v
@@ -294,6 +300,9 @@ func ValidateResourceResponse(body *ResourceResponse) (err error) {
 	if body.LastUpdatedAt == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("last_updated_at", "body"))
 	}
+	if body.Versions == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("versions", "body"))
+	}
 	if body.Catalog != nil {
 		if err2 := ValidateCatalogResponse(body.Catalog); err2 != nil {
 			err = goa.MergeErrors(err, err2)
@@ -301,7 +310,7 @@ func ValidateResourceResponse(body *ResourceResponse) (err error) {
 	}
 	for _, e := range body.Tags {
 		if e != nil {
-			if err2 := ValidateTag(e); err2 != nil {
+			if err2 := ValidateTagResponse(e); err2 != nil {
 				err = goa.MergeErrors(err, err2)
 			}
 		}
@@ -327,8 +336,8 @@ func ValidateCatalogResponse(body *CatalogResponse) (err error) {
 	return
 }
 
-// ValidateTag runs the validations defined on Tag
-func ValidateTag(body *Tag) (err error) {
+// ValidateTagResponse runs the validations defined on TagResponse
+func ValidateTagResponse(body *TagResponse) (err error) {
 	if body.ID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
 	}
@@ -357,6 +366,17 @@ func ValidateCatalogResponseBody(body *CatalogResponseBody) (err error) {
 	}
 	if body.Type == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("type", "body"))
+	}
+	return
+}
+
+// ValidateTagResponseBody runs the validations defined on TagResponseBody
+func ValidateTagResponseBody(body *TagResponseBody) (err error) {
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
 	return
 }

@@ -155,7 +155,13 @@ func newResource(vres *resourceviews.ResourceView) *Resource {
 	if vres.Tags != nil {
 		res.Tags = make([]*Tag, len(vres.Tags))
 		for i, val := range vres.Tags {
-			res.Tags[i] = transformResourceviewsTagToTag(val)
+			res.Tags[i] = transformResourceviewsTagViewToTag(val)
+		}
+	}
+	if vres.Versions != nil {
+		res.Versions = make([]*Versions, len(vres.Versions))
+		for i, val := range vres.Versions {
+			res.Versions[i] = transformResourceviewsVersionsViewToVersions(val)
 		}
 	}
 	return res
@@ -195,13 +201,7 @@ func newResourceExtended(vres *resourceviews.ResourceView) *Resource {
 	if vres.Tags != nil {
 		res.Tags = make([]*Tag, len(vres.Tags))
 		for i, val := range vres.Tags {
-			res.Tags[i] = transformResourceviewsTagToTag(val)
-		}
-	}
-	if vres.Versions != nil {
-		res.Versions = make([]*Versions, len(vres.Versions))
-		for i, val := range vres.Versions {
-			res.Versions[i] = transformResourceviewsVersionsViewToVersions(val)
+			res.Tags[i] = transformResourceviewsTagViewToTag(val)
 		}
 	}
 	return res
@@ -224,9 +224,15 @@ func newResourceView(res *Resource) *resourceviews.ResourceView {
 		vres.Catalog = transformCatalogToResourceviewsCatalogView(res.Catalog)
 	}
 	if res.Tags != nil {
-		vres.Tags = make([]*resourceviews.Tag, len(res.Tags))
+		vres.Tags = make([]*resourceviews.TagView, len(res.Tags))
 		for i, val := range res.Tags {
-			vres.Tags[i] = transformTagToResourceviewsTag(val)
+			vres.Tags[i] = transformTagToResourceviewsTagView(val)
+		}
+	}
+	if res.Versions != nil {
+		vres.Versions = make([]*resourceviews.VersionsView, len(res.Versions))
+		for i, val := range res.Versions {
+			vres.Versions[i] = transformVersionsToResourceviewsVersionsView(val)
 		}
 	}
 	return vres
@@ -249,15 +255,9 @@ func newResourceViewExtended(res *Resource) *resourceviews.ResourceView {
 		vres.Catalog = transformCatalogToResourceviewsCatalogView(res.Catalog)
 	}
 	if res.Tags != nil {
-		vres.Tags = make([]*resourceviews.Tag, len(res.Tags))
+		vres.Tags = make([]*resourceviews.TagView, len(res.Tags))
 		for i, val := range res.Tags {
-			vres.Tags[i] = transformTagToResourceviewsTag(val)
-		}
-	}
-	if res.Versions != nil {
-		vres.Versions = make([]*resourceviews.VersionsView, len(res.Versions))
-		for i, val := range res.Versions {
-			vres.Versions[i] = transformVersionsToResourceviewsVersionsView(val)
+			vres.Tags[i] = transformTagToResourceviewsTagView(val)
 		}
 	}
 	return vres
@@ -277,9 +277,9 @@ func transformResourceviewsCatalogViewToCatalog(v *resourceviews.CatalogView) *C
 	return res
 }
 
-// transformResourceviewsTagToTag builds a value of type *Tag from a value of
-// type *resourceviews.Tag.
-func transformResourceviewsTagToTag(v *resourceviews.Tag) *Tag {
+// transformResourceviewsTagViewToTag builds a value of type *Tag from a value
+// of type *resourceviews.TagView.
+func transformResourceviewsTagViewToTag(v *resourceviews.TagView) *Tag {
 	if v == nil {
 		return nil
 	}
@@ -316,10 +316,10 @@ func transformCatalogToResourceviewsCatalogView(v *Catalog) *resourceviews.Catal
 	return res
 }
 
-// transformTagToResourceviewsTag builds a value of type *resourceviews.Tag
-// from a value of type *Tag.
-func transformTagToResourceviewsTag(v *Tag) *resourceviews.Tag {
-	res := &resourceviews.Tag{
+// transformTagToResourceviewsTagView builds a value of type
+// *resourceviews.TagView from a value of type *Tag.
+func transformTagToResourceviewsTagView(v *Tag) *resourceviews.TagView {
+	res := &resourceviews.TagView{
 		ID:   &v.ID,
 		Name: &v.Name,
 	}
@@ -330,9 +330,6 @@ func transformTagToResourceviewsTag(v *Tag) *resourceviews.Tag {
 // transformVersionsToResourceviewsVersionsView builds a value of type
 // *resourceviews.VersionsView from a value of type *Versions.
 func transformVersionsToResourceviewsVersionsView(v *Versions) *resourceviews.VersionsView {
-	if v == nil {
-		return nil
-	}
 	res := &resourceviews.VersionsView{
 		VersionID: &v.VersionID,
 		Version:   &v.Version,

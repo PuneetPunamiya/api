@@ -26,7 +26,16 @@ func (s *resourcesrvc) All(ctx context.Context) (res []*resource.Resource, err e
 
 // Get one Resource info
 func (s *resourcesrvc) Info(ctx context.Context, p *resource.InfoPayload) (res *resource.Resource, err error) {
-	res = &resource.Resource{}
+	
+	res = &resource.Resource{
+		ID: 1,
+		Tags: []*resource.Tag{
+			{
+				ID:   1,
+				Name: "Mail",
+			},
+		},
+	}
 	s.logger.Print("resource.Info")
 	return
 }
