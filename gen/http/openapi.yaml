@@ -282,6 +282,7 @@ definitions:
     - tags
     - rating
     - last_updated_at
+    - versions
   ResourceResponse:
     title: 'Mediatype identifier: resource; view=default'
     type: object

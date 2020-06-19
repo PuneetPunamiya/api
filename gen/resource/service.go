@@ -330,9 +330,6 @@ func transformTagToResourceviewsTagView(v *Tag) *resourceviews.TagView {
 // transformVersionsToResourceviewsVersionsView builds a value of type
 // *resourceviews.VersionsView from a value of type *Versions.
 func transformVersionsToResourceviewsVersionsView(v *Versions) *resourceviews.VersionsView {
-	if v == nil {
-		return nil
-	}
 	res := &resourceviews.VersionsView{
 		VersionID: &v.VersionID,
 		Version:   &v.Version,

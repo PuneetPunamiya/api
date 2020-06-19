@@ -196,6 +196,9 @@ func ValidateResourceViewExtended(result *ResourceView) (err error) {
 	if result.LastUpdatedAt == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("last_updated_at", "result"))
 	}
+	if result.Versions == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("versions", "result"))
+	}
 	if result.Catalog != nil {
 		if err2 := ValidateCatalogView(result.Catalog); err2 != nil {
 			err = goa.MergeErrors(err, err2)

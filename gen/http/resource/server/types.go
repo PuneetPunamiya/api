@@ -41,7 +41,7 @@ type InfoResponseBodyExtended struct {
 	// Date when resource was last updated
 	LastUpdatedAt string `form:"last_updated_at" json:"last_updated_at" xml:"last_updated_at"`
 	// Version of resource
-	Versions []*VersionsResponseBody `form:"versions,omitempty" json:"versions,omitempty" xml:"versions,omitempty"`
+	Versions []*VersionsResponseBody `form:"versions" json:"versions" xml:"versions"`
 }
 
 // AllInternalErrorResponseBody is the type of the "resource" service "All"
@@ -103,7 +103,7 @@ type ResourceResponse struct {
 	// Date when resource was last updated
 	LastUpdatedAt string `form:"last_updated_at" json:"last_updated_at" xml:"last_updated_at"`
 	// Version of resource
-	Versions []*VersionsResponse `form:"versions,omitempty" json:"versions,omitempty" xml:"versions,omitempty"`
+	Versions []*VersionsResponse `form:"versions" json:"versions" xml:"versions"`
 }
 
 // CatalogResponse is used to define fields on response body types.
