@@ -40,6 +40,8 @@ type InfoResponseBodyExtended struct {
 	Rating uint `form:"rating" json:"rating" xml:"rating"`
 	// Date when resource was last updated
 	LastUpdatedAt string `form:"last_updated_at" json:"last_updated_at" xml:"last_updated_at"`
+	// Version of resource
+	Versions []*VersionsResponseBody `form:"versions,omitempty" json:"versions,omitempty" xml:"versions,omitempty"`
 }
 
 // AllInternalErrorResponseBody is the type of the "resource" service "All"
@@ -101,7 +103,7 @@ type ResourceResponse struct {
 	// Date when resource was last updated
 	LastUpdatedAt string `form:"last_updated_at" json:"last_updated_at" xml:"last_updated_at"`
 	// Version of resource
-	Versions []*VersionsResponse `form:"versions" json:"versions" xml:"versions"`
+	Versions []*VersionsResponse `form:"versions,omitempty" json:"versions,omitempty" xml:"versions,omitempty"`
 }
 
 // CatalogResponse is used to define fields on response body types.
@@ -144,6 +146,14 @@ type TagResponseBody struct {
 	Name string `form:"name" json:"name" xml:"name"`
 }
 
+// VersionsResponseBody is used to define fields on response body types.
+type VersionsResponseBody struct {
+	// Version ID of the resource to be fetched
+	VersionID uint `form:"versionId" json:"versionId" xml:"versionId"`
+	// Version of the resource to be fetched
+	Version string `form:"version" json:"version" xml:"version"`
+}
+
 // NewAllResponseBody builds the HTTP response body from the result of the
 // "All" endpoint of the "resource" service.
 func NewAllResponseBody(res []*resource.Resource) AllResponseBody {
@@ -174,6 +184,12 @@ func NewInfoResponseBodyExtended(res *resourceviews.ResourceView) *InfoResponseB
 		body.Tags = make([]*TagResponseBody, len(res.Tags))
 		for i, val := range res.Tags {
 			body.Tags[i] = marshalResourceviewsTagViewToTagResponseBody(val)
+		}
+	}
+	if res.Versions != nil {
+		body.Versions = make([]*VersionsResponseBody, len(res.Versions))
+		for i, val := range res.Versions {
+			body.Versions[i] = marshalResourceviewsVersionsViewToVersionsResponseBody(val)
 		}
 	}
 	return body

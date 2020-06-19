@@ -197,9 +197,11 @@ func NewInfoResourceOK(body *InfoResponseBody) *resourceviews.ResourceView {
 	for i, val := range body.Tags {
 		v.Tags[i] = unmarshalTagResponseBodyToResourceviewsTagView(val)
 	}
-	v.Versions = make([]*resourceviews.VersionsView, len(body.Versions))
-	for i, val := range body.Versions {
-		v.Versions[i] = unmarshalVersionsResponseBodyToResourceviewsVersionsView(val)
+	if body.Versions != nil {
+		v.Versions = make([]*resourceviews.VersionsView, len(body.Versions))
+		for i, val := range body.Versions {
+			v.Versions[i] = unmarshalVersionsResponseBodyToResourceviewsVersionsView(val)
+		}
 	}
 
 	return v
@@ -299,9 +301,6 @@ func ValidateResourceResponse(body *ResourceResponse) (err error) {
 	}
 	if body.LastUpdatedAt == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("last_updated_at", "body"))
-	}
-	if body.Versions == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("versions", "body"))
 	}
 	if body.Catalog != nil {
 		if err2 := ValidateCatalogResponse(body.Catalog); err2 != nil {

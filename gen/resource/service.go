@@ -158,12 +158,6 @@ func newResource(vres *resourceviews.ResourceView) *Resource {
 			res.Tags[i] = transformResourceviewsTagViewToTag(val)
 		}
 	}
-	if vres.Versions != nil {
-		res.Versions = make([]*Versions, len(vres.Versions))
-		for i, val := range vres.Versions {
-			res.Versions[i] = transformResourceviewsVersionsViewToVersions(val)
-		}
-	}
 	return res
 }
 
@@ -204,6 +198,12 @@ func newResourceExtended(vres *resourceviews.ResourceView) *Resource {
 			res.Tags[i] = transformResourceviewsTagViewToTag(val)
 		}
 	}
+	if vres.Versions != nil {
+		res.Versions = make([]*Versions, len(vres.Versions))
+		for i, val := range vres.Versions {
+			res.Versions[i] = transformResourceviewsVersionsViewToVersions(val)
+		}
+	}
 	return res
 }
 
@@ -229,12 +229,6 @@ func newResourceView(res *Resource) *resourceviews.ResourceView {
 			vres.Tags[i] = transformTagToResourceviewsTagView(val)
 		}
 	}
-	if res.Versions != nil {
-		vres.Versions = make([]*resourceviews.VersionsView, len(res.Versions))
-		for i, val := range res.Versions {
-			vres.Versions[i] = transformVersionsToResourceviewsVersionsView(val)
-		}
-	}
 	return vres
 }
 
@@ -258,6 +252,12 @@ func newResourceViewExtended(res *Resource) *resourceviews.ResourceView {
 		vres.Tags = make([]*resourceviews.TagView, len(res.Tags))
 		for i, val := range res.Tags {
 			vres.Tags[i] = transformTagToResourceviewsTagView(val)
+		}
+	}
+	if res.Versions != nil {
+		vres.Versions = make([]*resourceviews.VersionsView, len(res.Versions))
+		for i, val := range res.Versions {
+			vres.Versions[i] = transformVersionsToResourceviewsVersionsView(val)
 		}
 	}
 	return vres
@@ -330,6 +330,9 @@ func transformTagToResourceviewsTagView(v *Tag) *resourceviews.TagView {
 // transformVersionsToResourceviewsVersionsView builds a value of type
 // *resourceviews.VersionsView from a value of type *Versions.
 func transformVersionsToResourceviewsVersionsView(v *Versions) *resourceviews.VersionsView {
+	if v == nil {
+		return nil
+	}
 	res := &resourceviews.VersionsView{
 		VersionID: &v.VersionID,
 		Version:   &v.Version,

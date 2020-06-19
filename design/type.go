@@ -55,7 +55,6 @@ var Resource = ResultType("Resource", func() {
 		Attribute("tags")
 		Attribute("rating")
 		Attribute("last_updated_at")
-		Attribute("versions")
 	})
 
 	View("extended", func() {
@@ -69,9 +68,10 @@ var Resource = ResultType("Resource", func() {
 		Attribute("tags")
 		Attribute("rating")
 		Attribute("last_updated_at")
+		Attribute("versions")
 	})
+	Required("id", "name", "displayName", "catalog", "type", "description", "latest_version", "tags", "rating", "last_updated_at")
 
-	Required("id", "name", "displayName", "catalog", "type", "description", "latest_version", "tags", "rating", "last_updated_at", "versions")
 })
 
 var Versions = Type("Versions", func() {

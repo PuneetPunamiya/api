@@ -182,6 +182,9 @@ func marshalResourceTagToTagResponse(v *resource.Tag) *TagResponse {
 // marshalResourceVersionsToVersionsResponse builds a value of type
 // *VersionsResponse from a value of type *resource.Versions.
 func marshalResourceVersionsToVersionsResponse(v *resource.Versions) *VersionsResponse {
+	if v == nil {
+		return nil
+	}
 	res := &VersionsResponse{
 		VersionID: v.VersionID,
 		Version:   v.Version,
@@ -207,6 +210,20 @@ func marshalResourceviewsTagViewToTagResponseBody(v *resourceviews.TagView) *Tag
 	res := &TagResponseBody{
 		ID:   *v.ID,
 		Name: *v.Name,
+	}
+
+	return res
+}
+
+// marshalResourceviewsVersionsViewToVersionsResponseBody builds a value of
+// type *VersionsResponseBody from a value of type *resourceviews.VersionsView.
+func marshalResourceviewsVersionsViewToVersionsResponseBody(v *resourceviews.VersionsView) *VersionsResponseBody {
+	if v == nil {
+		return nil
+	}
+	res := &VersionsResponseBody{
+		VersionID: *v.VersionID,
+		Version:   *v.Version,
 	}
 
 	return res

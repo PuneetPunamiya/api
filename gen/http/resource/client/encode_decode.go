@@ -200,9 +200,11 @@ func unmarshalResourceResponseToResourceResource(v *ResourceResponse) *resource.
 	for i, val := range v.Tags {
 		res.Tags[i] = unmarshalTagResponseToResourceTag(val)
 	}
-	res.Versions = make([]*resource.Versions, len(v.Versions))
-	for i, val := range v.Versions {
-		res.Versions[i] = unmarshalVersionsResponseToResourceVersions(val)
+	if v.Versions != nil {
+		res.Versions = make([]*resource.Versions, len(v.Versions))
+		for i, val := range v.Versions {
+			res.Versions[i] = unmarshalVersionsResponseToResourceVersions(val)
+		}
 	}
 
 	return res
@@ -233,6 +235,9 @@ func unmarshalTagResponseToResourceTag(v *TagResponse) *resource.Tag {
 // unmarshalVersionsResponseToResourceVersions builds a value of type
 // *resource.Versions from a value of type *VersionsResponse.
 func unmarshalVersionsResponseToResourceVersions(v *VersionsResponse) *resource.Versions {
+	if v == nil {
+		return nil
+	}
 	res := &resource.Versions{
 		VersionID: *v.VersionID,
 		Version:   *v.Version,
@@ -266,6 +271,9 @@ func unmarshalTagResponseBodyToResourceviewsTagView(v *TagResponseBody) *resourc
 // unmarshalVersionsResponseBodyToResourceviewsVersionsView builds a value of
 // type *resourceviews.VersionsView from a value of type *VersionsResponseBody.
 func unmarshalVersionsResponseBodyToResourceviewsVersionsView(v *VersionsResponseBody) *resourceviews.VersionsView {
+	if v == nil {
+		return nil
+	}
 	res := &resourceviews.VersionsView{
 		VersionID: v.VersionID,
 		Version:   v.Version,
